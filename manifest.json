@@ -1,7 +1,7 @@
 {
-  "name": "Baccarat Pattern Matcher V7.4.5",
-  "short_name": "Baccarat V7.4.5",
-  "description": "Live input DB save fix",
+  "name": "Baccarat Pattern Matcher V7.4.6",
+  "short_name": "Baccarat V7.4.6",
+  "description": "DB save hard fix for 20+ length patterns",
   "theme_color": "#0a0a0a",
   "background_color": "#0a0a0a",
   "display": "standalone",
