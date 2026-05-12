@@ -1,0 +1,345 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Baccarat Pattern Matcher V7.4 - Save Live Full DB</title>
+<link rel="manifest" href="./manifest.json" />
+<meta name="theme-color" content="#0a0a0a" />
+<style>
+*{box-sizing:border-box}body{margin:0;background:#0a0a0a;color:#f5f5f5;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}.app{min-height:100vh;padding:18px}.container{max-width:1200px;margin:0 auto}h1{margin:0;font-size:30px}h2{margin:0 0 14px}.subtitle,.muted{color:#a3a3a3}.header{display:flex;justify-content:space-between;align-items:flex-end;gap:12px;flex-wrap:wrap;margin-bottom:18px}.card{background:#171717;border:1px solid #262626;border-radius:20px;padding:18px;box-shadow:0 12px 28px rgba(0,0,0,.25);margin-bottom:14px}.grid2{display:grid;grid-template-columns:2fr 1fr;gap:14px}.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}.grid4{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}.controls{display:flex;gap:8px;flex-wrap:wrap;align-items:center}input,textarea,select{background:#0a0a0a;color:#f5f5f5;border:1px solid #404040;border-radius:12px;padding:10px 12px;width:100%}textarea{min-height:92px}button,.fileBtn{border:0;border-radius:12px;padding:10px 12px;cursor:pointer;background:#e5e5e5;color:#111;font-weight:800;display:inline-block}.btnB{background:#dc2626;color:#fff}.btnP{background:#2563eb;color:#fff}.btnT{background:#059669;color:#fff}.sec{background:#404040;color:#fff}.dangerBtn{background:#991b1b;color:#fff}.chip{display:inline-flex;align-items:center;justify-content:center;min-width:34px;height:34px;padding:0 10px;border-radius:999px;font-weight:900;color:white}.B{background:#dc2626!important;color:#fff!important}.P{background:#2563eb!important;color:#fff!important}.T{background:#059669!important;color:#fff!important}.slots{display:grid;grid-template-columns:repeat(20,1fr);gap:6px}.patternSlots{display:grid;grid-template-columns:repeat(10,1fr);gap:6px}.slot{height:42px;border-radius:12px;display:flex;align-items:center;justify-content:center;border:1px solid #404040;background:#0a0a0a;color:#666;font-weight:800}.stat{background:#0a0a0a;border:1px solid #262626;border-radius:16px;padding:12px}.label{color:#a3a3a3;font-size:13px}.value{font-size:20px;font-weight:900;margin-top:4px}.panel{border-radius:20px;padding:20px;text-align:center;border:1px solid #262626;background:#0a0a0a}.big{font-size:42px;font-weight:1000;margin:8px 0}.red{color:#f87171}.blue{color:#60a5fa}.green{color:#4ade80}.yellow{color:#facc15}.danger{background:rgba(127,29,29,.35);border:1px solid #991b1b}.warn{background:rgba(113,63,18,.35);border:1px solid #854d0e}.ok{background:rgba(20,83,45,.35);border:1px solid #166534}.box{border-radius:16px;padding:14px;margin-top:10px}table{width:100%;border-collapse:collapse;font-size:13px}th,td{border-bottom:1px solid #262626;padding:10px;text-align:left;vertical-align:top}th{color:#a3a3a3}.scroll{overflow-x:auto}.pattern{white-space:nowrap;color:#d4d4d4}.bar{height:8px;border-radius:999px;background:#262626;overflow:hidden;margin-top:8px}.fill{height:100%;background:#e5e5e5}.log{max-height:170px;overflow:auto;font-size:13px;color:#d4d4d4;line-height:1.8}.v3badge{background:#facc15;color:#111;border-radius:999px;padding:6px 10px;font-weight:1000;font-size:12px}
+.previewBox{border:1px solid #262626;border-radius:16px;padding:12px;background:#0a0a0a;margin-top:12px}
+.previewBox img{max-width:100%;border-radius:12px;display:block}
+.detectedSeq{display:flex;gap:6px;flex-wrap:wrap;margin-top:10px}
+.smallNote{font-size:12px;color:#a3a3a3;line-height:1.5}@media(max-width:900px){.grid2,.grid3,.grid4{grid-template-columns:1fr}.slots,.patternSlots{grid-template-columns:repeat(8,1fr)}h1{font-size:26px}.app{padding:14px}}
+
+.mobile-priority{display:grid;gap:14px}
+.primary-result{border:1px solid #404040;background:#0a0a0a;border-radius:18px;padding:14px}
+@media(max-width:900px){
+  .app{padding:10px}
+  .card{padding:15px;border-radius:18px}
+  h1{font-size:24px}
+  h2{font-size:22px}
+  button{min-height:48px;font-size:15px}
+  input,select,textarea{min-height:46px;font-size:16px}
+  .slots{grid-template-columns:repeat(8,1fr)!important}
+  .patternSlots{grid-template-columns:repeat(8,1fr)!important}
+  .slot{height:46px;font-size:15px}
+  .controls button{flex:1 1 30%}
+  .big{font-size:38px}
+}
+
+.exact-note{border:1px solid #333;background:#0a0a0a;border-radius:14px;padding:10px;margin-top:10px;color:#d4d4d4}
+.exact-ok{color:#4ade80;font-weight:900}
+.exact-bad{color:#f87171;font-weight:900}
+</style>
+</head>
+<body>
+<div style="position:fixed;right:8px;bottom:8px;z-index:9999;background:#14532d;color:#bbf7d0;border:1px solid #16a34a;border-radius:999px;padding:6px 10px;font-size:11px;font-weight:900">V7.4 / 최근입력 전체 DB저장</div>
+<div class="app"><div class="container">
+<div class="header">
+  <div>
+    <div class="controls"><h1>Baccarat Pattern Matcher V7.4.3</h1><span class="v3badge">40 INPUT / RECENT 6 EXACT</span></div>
+    <div class="subtitle">과거 20개 패턴 DB와 현재 10~15개 흐름을 비교해 다음 후보를 추출합니다.</div>
+  </div>
+  <div class="controls">
+    <button onclick="saveAll()">저장</button>
+    <button class="sec" onclick="exportData()">DB 내보내기</button>
+    <label class="fileBtn sec">DB 불러오기<input id="importFile" type="file" accept="application/json" onchange="importData(event)" style="display:none"></label>
+  </div>
+</div>
+<p id="savedAt" class="muted"></p>
+
+<div class="grid2">
+<div class="card"><h2>실전 최근 40개 입력</h2><div class="controls" style="margin-bottom:12px"><button class="btnB" onclick="addLive('B')">Banker</button><button class="btnP" onclick="addLive('P')">Player</button><button class="btnT" onclick="addLive('T')">Tie</button><button class="sec" onclick="undoLive()">되돌리기</button><button class="dangerBtn" onclick="resetLive()">초기화</button></div><button class="ok" onclick="saveLiveToDB()">실전입력 DB 저장</button><div id="liveSlots" class="slots"></div><h3>현재 흐름</h3><div id="liveFlow" class="controls"></div></div>
+<div class="card"><h2>추천 결과</h2><div id="recommendPanel"></div></div>
+<div class="card"><h2>진입 판단</h2><div id="entryPanel"></div></div>
+<div class="card"><h2>결과 집계</h2><div id="votePanel"></div></div>
+<div class="card"><h2>상위 유사 패턴</h2><div class="scroll"><table><thead><tr><th>순위</th><th>유사도</th><th>16번째</th><th>패턴</th></tr></thead><tbody id="matchTable"></tbody></table></div></div>
+
+<div class="card"><h2>분석 설정</h2><div class="grid3"><div><label class="muted">최소 유사도(%)</label><input id="minSimilarity" type="number" value="70" oninput="render()"></div><div><label class="muted">최소 매칭 수</label><input id="minMatches" type="number" value="10" oninput="render()"></div><div><label class="muted">Tie 제외 추천</label><select id="excludeTie" onchange="render()"><option value="yes">예</option><option value="no">아니오</option></select></div></div><div class="box warn yellow">최근 6개 완전일치 + 전체 유사도 조건을 통과한 DB 패턴만 추천합니다. 8개 기준이라 추천 빈도는 줄지만 신뢰도는 높아집니다. 흐름분석은 제외했습니다.</div></div>
+</div>
+
+<div class="grid2">
+<div class="card"><h2>과거 20개 패턴 DB</h2>
+<p class="muted">Banker / Player / Tie 버튼을 누르면 1번 칸부터 20번 칸까지 자동으로 입력됩니다.</p>
+<div class="controls" style="margin-bottom:12px"><button class="btnB" onclick="addPatternToken('B')">Banker</button><button class="btnP" onclick="addPatternToken('P')">Player</button><button class="btnT" onclick="addPatternToken('T')">Tie</button><button class="sec" onclick="undoPatternToken()">되돌리기</button><button class="dangerBtn" onclick="resetPatternInput()">20칸 초기화</button></div>
+<div class="previewBox">
+  <h3 style="margin-top:0">캡쳐 이미지로 DB 20칸 채우기</h3>
+  <p class="smallNote">빨간 원은 Banker, 파란 원은 Player로 인식합니다. 초록 사선(Tie)과 작은 점은 무시합니다. 인식 후 20칸에 채워지며, 저장은 직접 확인 후 눌러야 합니다.</p>
+  <div class="controls">
+    <label class="fileBtn sec">캡쳐 업로드<input id="roadImageInput" type="file" accept="image/*" onchange="handleRoadImage(event)" style="display:none"></label>
+    <button class="sec" onclick="applyDetectedToPattern()">인식값 20칸에 적용</button>
+    <button class="dangerBtn" onclick="clearDetected()">인식값 지우기</button>
+  </div>
+  <canvas id="roadCanvas" style="display:none"></canvas>
+  <div id="imagePreview"></div>
+  <div id="detectedInfo" class="muted" style="margin-top:8px">아직 인식된 이미지 없음</div>
+  <div id="detectedSeq" class="detectedSeq"></div>
+</div>
+<div id="patternSlots" class="patternSlots"></div>
+<div class="controls" style="margin-top:10px"><button onclick="savePatternFromGrid()">20개 패턴 저장</button><button class="sec" onclick="addSamplePatterns()">샘플 30개 추가</button><button class="dangerBtn" onclick="clearPatterns()">DB 초기화</button></div>
+<details style="margin-top:12px"><summary class="muted">텍스트로 직접 입력하기</summary><textarea id="patternInput" placeholder="예: B P B B P P B T B P P B B B P P B P B B" style="margin-top:10px"></textarea><button onclick="savePattern()" style="margin-top:8px">텍스트 패턴 저장</button></details>
+<p class="muted">20개 결과 입력: 앞 15개는 비교, 16번째 결과는 추천 후보, 17~20번째는 참고 흐름입니다.</p></div>
+<div class="card"><h2>DB 상태</h2><div class="grid3"><div class="stat"><div class="label">저장 패턴</div><div id="dbCount" class="value">0</div></div><div class="stat"><div class="label">분석 가능</div><div id="readyState" class="value">아니오</div></div><div class="stat"><div class="label">현재 입력</div><div id="liveCount" class="value">0/40</div></div></div></div>
+</div>
+
+<div class="card">
+<h2>DB 관리 — V3 추가 기능</h2>
+<div class="grid3">
+  <div class="stat"><div class="label">중복 제거 전</div><div id="beforeDedup" class="value">0개</div></div>
+  <div class="stat"><div class="label">중복 제거 후</div><div id="afterDedup" class="value">0개</div></div>
+  <div class="stat"><div class="label">마지막 불러오기</div><div id="lastImport" class="value" style="font-size:14px">없음</div></div>
+</div>
+<div class="controls" style="margin-top:12px">
+  <button onclick="dedupePatterns()">중복 패턴 제거</button>
+  <button class="dangerBtn" onclick="clearAllData()">전체 데이터 삭제</button>
+</div>
+<p class="muted">DB 불러오기는 JSON 파일 선택 후 기존 DB에 병합하거나 덮어쓸 수 있습니다. 같은 20개 패턴은 자동 중복 제거됩니다.</p>
+</div>
+
+<div class="grid3"></div>
+
+
+<div class="grid2">
+<div class="card"><h2>자금관리</h2><div class="grid3"><div><label class="muted">시작 자본</label><input id="startBankroll" type="number" value="200000" oninput="renderMoney()"></div><div><label class="muted">현재 자본</label><input id="currentBankroll" type="number" value="200000" oninput="renderMoney()"></div><div><label class="muted">목표 수익</label><input id="targetProfit" type="number" value="30000" oninput="renderMoney()"></div><div><label class="muted">손절 금액</label><input id="stopLoss" type="number" value="30000" oninput="renderMoney()"></div><div><label class="muted">최근 연패</label><input id="losingStreak" type="number" value="0" oninput="renderMoney()"></div><div><label class="muted">1회 베팅금</label><input id="betUnit" type="number" value="10000" oninput="renderMoney()"></div></div><div id="moneyPanel"></div></div>
+<div class="card"><h2>베팅 로그 / ROI</h2><div class="controls"><input id="betAmount" type="number" placeholder="베팅금" style="max-width:160px"><button onclick="recordBet(true)">승</button><button class="dangerBtn" onclick="recordBet(false)">패</button><button class="sec" onclick="clearBets()">로그 초기화</button></div><div id="roiPanel" style="margin-top:12px"></div><div id="betLog" class="log"></div></div>
+</div>
+<div class="card"><h2>중요 사용 원칙</h2><p class="muted">이 앱은 결과를 보장하는 예측기가 아닙니다. 과거 유사 패턴의 16번째 결과를 집계해서 후보를 보여주는 판단 보조 도구입니다.</p><p class="muted">매칭 패턴 수가 적거나 추천 비율이 낮으면 진입하지 않는 것이 핵심입니다.</p></div>
+</div></div>
+
+<script>
+const STORAGE_KEY="baccarat-pattern-matcher-v5-min10";let live=[],patterns=[],betLogs=[],patternInput=[],detectedPattern=[];
+function norm(x){x=String(x).trim().toUpperCase();if(["B","BANKER","뱅커"].includes(x))return"B";if(["P","PLAYER","플레이어"].includes(x))return"P";if(["T","TIE","타이"].includes(x))return"T";return null}
+function haptic(){try{if(navigator.vibrate)navigator.vibrate(25)}catch(e){}}
+function parse(t){return String(t).split(/[\\s,>-]+/).map(norm).filter(Boolean)}
+function label(v){return v==="B"?"Banker":v==="P"?"Player":"Tie"}function won(n){return(Number(n)||0).toLocaleString()+"원"}function chip(v){return`<span class="chip ${v}">${v}</span>`}function pct(n){return(Number(n)||0).toFixed(1)+"%"}
+function addLive(v){if(live.length<40){haptic();live.push(v);render()}}function undoLive(){live.pop();render()}function resetLive(){live=[];render()}
+
+function clearDetected(){
+  detectedPattern=[];
+  document.getElementById("imagePreview").innerHTML="";
+  document.getElementById("detectedInfo").textContent="아직 인식된 이미지 없음";
+  document.getElementById("detectedSeq").innerHTML="";
+}
+function renderDetected(){
+  document.getElementById("detectedInfo").textContent = detectedPattern.length ? "인식 결과: "+detectedPattern.length+"개 B/P 감지됨. 앞 20개만 DB 입력에 적용됩니다." : "인식 결과 없음";
+  document.getElementById("detectedSeq").innerHTML = detectedPattern.map(chip).join("");
+}
+function applyDetectedToPattern(){
+  if(!detectedPattern.length){alert("먼저 이미지를 업로드해 인식하세요.");return;}
+  patternInput = detectedPattern.slice(0,20);
+  if(patternInput.length < 20){
+    alert("인식된 B/P가 20개 미만입니다. 부족한 칸은 수동으로 채워주세요.");
+  }
+  renderPatternSlots();renderDetected();
+}
+function handleRoadImage(event){
+  const file = event.target.files && event.target.files[0];
+  if(!file) return;
+  const img = new Image();
+  const url = URL.createObjectURL(file);
+  img.onload = function(){
+    const canvas = document.getElementById("roadCanvas");
+    const ctx = canvas.getContext("2d");
+    const maxW = 1200;
+    const scale = img.width > maxW ? maxW / img.width : 1;
+    canvas.width = Math.floor(img.width * scale);
+    canvas.height = Math.floor(img.height * scale);
+    ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+    document.getElementById("imagePreview").innerHTML = `<img src="${url}" alt="uploaded road image">`;
+    detectedPattern = detectBPFromCanvas(canvas);
+    renderDetected();
+  };
+  img.src = url;
+  event.target.value="";
+}
+function detectBPFromCanvas(canvas){
+  const ctx = canvas.getContext("2d");
+  const w = canvas.width, h = canvas.height;
+  const data = ctx.getImageData(0,0,w,h).data;
+
+  // 빨강/파랑 픽셀을 격자 형태로 묶기 위한 간단한 색상 기반 감지.
+  // 초록 사선은 의도적으로 감지하지 않음.
+  const points = [];
+  const step = 4;
+  for(let y=0;y<h;y+=step){
+    for(let x=0;x<w;x+=step){
+      const i=(y*w+x)*4;
+      const r=data[i], g=data[i+1], b=data[i+2];
+      let type=null;
+      // Banker red
+      if(r>150 && g<90 && b<110) type="B";
+      // Player blue
+      else if(b>140 && r<110 && g<170) type="P";
+      if(type) points.push({x,y,type});
+    }
+  }
+  if(points.length===0) return [];
+
+  // 색상 포인트를 대략적인 원 중심으로 군집화
+  const cell = Math.max(18, Math.floor(Math.min(w,h)/18));
+  const buckets = new Map();
+  points.forEach(p=>{
+    const bx=Math.floor(p.x/cell), by=Math.floor(p.y/cell);
+    const key=bx+","+by+","+p.type;
+    if(!buckets.has(key)) buckets.set(key,{x:0,y:0,count:0,type:p.type});
+    const b=buckets.get(key);
+    b.x+=p.x;b.y+=p.y;b.count++;
+  });
+
+  let blobs=[...buckets.values()].map(b=>({x:b.x/b.count,y:b.y/b.count,count:b.count,type:b.type}))
+    .filter(b=>b.count>=8);
+
+  // 가까운 같은 색상끼리 병합
+  const merged=[];
+  blobs.sort((a,b)=>b.count-a.count).forEach(b=>{
+    let found=false;
+    for(const m of merged){
+      const dx=m.x-b.x, dy=m.y-b.y;
+      if(m.type===b.type && Math.sqrt(dx*dx+dy*dy)<cell*0.9){
+        const total=m.count+b.count;
+        m.x=(m.x*m.count+b.x*b.count)/total;
+        m.y=(m.y*m.count+b.y*b.count)/total;
+        m.count=total;
+        found=true;
+        break;
+      }
+    }
+    if(!found) merged.push({...b});
+  });
+
+  // 같은 칸에 빨강/파랑이 겹치는 오류 방지: 큰 blob 우선
+  const filtered=[];
+  merged.sort((a,b)=>b.count-a.count).forEach(b=>{
+    const near=filtered.find(m=>Math.abs(m.x-b.x)<cell*0.8 && Math.abs(m.y-b.y)<cell*0.8);
+    if(!near) filtered.push(b);
+  });
+
+  // 바카라 로드맵 읽기 순서: 좌→우, 같은 열에서는 위→아래
+  // 실제 캡쳐는 열 단위로 이어지므로 x를 먼저, y를 다음 기준으로 정렬.
+  filtered.sort((a,b)=> a.x===b.x ? a.y-b.y : a.x-b.x);
+
+  // 너무 촘촘히 잡힌 중복 제거
+  const final=[];
+  filtered.forEach(b=>{
+    const dup=final.find(m=>Math.abs(m.x-b.x)<cell*0.65 && Math.abs(m.y-b.y)<cell*0.65);
+    if(!dup) final.push(b);
+  });
+
+  return final.map(b=>b.type);
+}
+
+function addPatternToken(v){haptic();if(patternInput.length<20){patternInput.push(v);renderPatternSlots()}}function undoPatternToken(){patternInput.pop();renderPatternSlots()}function resetPatternInput(){patternInput=[];renderPatternSlots()}function renderPatternSlots(){document.getElementById("patternSlots").innerHTML=Array.from({length:40},(_,i)=>`<div class="slot ${patternInput[i]||""}">${patternInput[i]||i+1}</div>`).join("")}
+function savePatternFromGrid(){if(patternInput.length!==20){alert("20칸을 모두 입력해야 저장됩니다. 현재 "+patternInput.length+"개 입력됨.");return}patterns.push([...patternInput]);patternInput=[];dedupePatterns(false);render()}
+function savePattern(){const a=parse(document.getElementById("patternInput").value);if(a.length!==20){alert("20개 결과를 정확히 입력해야 합니다.");return}patterns.push(a);document.getElementById("patternInput").value="";dedupePatterns(false);render()}
+function clearPatterns(){if(confirm("DB를 모두 삭제할까요?")){patterns=[];render()}}
+function addSamplePatterns(){["B P B B P P B T B P P B B B P B P B B P","B P B P P P B T B P P B B B P B B P B P","P B P P B B P B P B B P P P B P B P P B","B B P B P B B P T B P P B B P B P B P B","P P B P B P P B B P B B P P B P P B B P","B P P B B P B P B B P T B P B P B B P B","B B B P P B P B P P B B B P P B P B P B","P B B P B P B B P P B P B B P P B P B B","B P B B P B B T B P P B P B P P B B P B","P B P B P P B B P B B P T P B P B P B B","B B P P B P B P B B P B P P B B P B B P","P P P B B P B P P B B P B P B P B B P P","B P B P B P B P B P B P B P B B P B P B","P B P B P B P B P B P B P B P P B P B P","B B P B B P P B T P B B P B P B B P P B","P B B P P B B P B P P B B P T P B B P B","B P P P B B P B B P B P P B B B P B P P","P B B B P P B P P B P B B P P P B P B B","B B B B P P P B B P P B T B P B P P B B","P P B B B P P B P B T B P P B B P B P B","B P T B P B P P B B P B B P B B P P B P","P B T P B P B B P P B P P B P P B B P B","B B P T B P B B P B P P B P B B B P P B","P P B T P B P P B P B B P B P P P B B P","B P B B B P B P P B B P B T P B P B B P","P B P P P B P B B P P B P T B P B P P B","B B P P P B B P B P B B P P B P T B P B","P P B B B P P B P B P P B B P B T P B P","B P B P P B B B P P B P B P B B P T B P","P B P B B P P P B B P B P B P P B T P B"].forEach(s=>{const a=parse(s);if(a.length===20)patterns.push(a)});dedupePatterns(false);render()}
+function patternKey(p){return Array.isArray(p)?p.join(""):""}function normalizePatternArray(arr){if(!Array.isArray(arr))return[];return arr.map(x=>Array.isArray(x)?x.map(norm).filter(Boolean):parse(String(x))).filter(p=>p.length===20)}
+function mergePatterns(a,b){const map=new Map();a.forEach(p=>{if(p.length===20)map.set(patternKey(p),p)});b.forEach(p=>{if(p.length===20)map.set(patternKey(p),p)});return[...map.values()]}
+function dedupePatterns(show=true){const before=patterns.length;patterns=mergePatterns([],patterns);const after=patterns.length;document.getElementById("beforeDedup").textContent=before+"개";document.getElementById("afterDedup").textContent=after+"개";if(show){saveAll();render();alert("중복 제거 완료: "+before+"개 → "+after+"개")}}
+function importData(event){const file=event.target.files&&event.target.files[0];if(!file)return;const reader=new FileReader();reader.onload=function(){try{const data=JSON.parse(reader.result);const imported=normalizePatternArray(data.patterns||data.db||[]);if(imported.length===0){alert("불러올 수 있는 20개 패턴이 없습니다.");return}const merge=confirm("확인 = 기존 DB에 병합\\n취소 = 기존 DB 덮어쓰기");const before=patterns.length;patterns=merge?mergePatterns(patterns,imported):mergePatterns([],imported);if(Array.isArray(data.live))live=data.live.map(norm).filter(Boolean).slice(0,15);if(Array.isArray(data.betLogs))betLogs=data.betLogs.filter(x=>x&&typeof x==="object");if(Array.isArray(data.patternInput))patternInput=data.patternInput.map(norm).filter(Boolean).slice(0,20);document.getElementById("beforeDedup").textContent=before+"개";document.getElementById("afterDedup").textContent=patterns.length+"개";document.getElementById("lastImport").textContent=new Date().toLocaleString();saveAll();render();alert("DB 불러오기 완료: 파일 패턴 "+imported.length+"개 / 현재 DB "+patterns.length+"개")}catch(e){alert("JSON 파일을 읽을 수 없습니다.")}finally{event.target.value=""}};reader.readAsText(file)}
+function clearAllData(){if(confirm("패턴 DB, 실전 입력, 베팅 로그를 모두 삭제할까요?")){live=[];patterns=[];betLogs=[];patternInput=[];localStorage.removeItem(STORAGE_KEY);render();alert("전체 데이터 삭제 완료")}}
+function sim(l,p,len){
+  // V6.1: 20칸 전체 가중치 보정.
+  // 오래된 값은 낮게, 최신 값일수록 높게 반영한다.
+  // 입력 16~20개에서도 undefined 가중치가 생기지 않는다.
+  const baseWeights=[1,1,1,1,1,2,2,2,2,2,3,3,3,3,3,4,4,4,5,5];
+  let sc=0,mx=0,ma=0;
+  for(let i=0;i<len;i++){
+    const w=baseWeights[i]||5;
+    mx+=w;
+    if(l[i]===p[i]){
+      sc+=w;
+      ma++;
+    }
+  }
+  return{similarity:mx?sc/mx*100:0,matches:ma}
+}
+function inputDepthInfo(){if(live.length<10)return{label:"분석 불가",cls:"danger",text:"최근 10개 이상 입력 필요"};if(live.length<=11)return{label:"신뢰도 낮음",cls:"warn",text:"10~11개 입력은 방향 참고용입니다."};if(live.length<=13)return{label:"조건부 분석",cls:"warn",text:"12~13개 입력은 약한 신호로 봐야 합니다."};if(live.length<=15)return{label:"정상 분석",cls:"ok",text:"14~15개 입력은 정상 분석 기준입니다."};return{label:"확장 분석",cls:"ok",text:"16~20개 입력도 보정 가중치로 계속 분석합니다."}}
+
+function recentExactMatch(liveSeq, pattern, recentLen=6){
+  if(liveSeq.length < recentLen) return false;
+  const liveRecent = liveSeq.slice(-recentLen);
+  const patternRecent = pattern.slice(liveSeq.length - recentLen, liveSeq.length);
+  if(patternRecent.length < recentLen) return false;
+  return liveRecent.every((v,i)=>v===patternRecent[i]);
+}
+
+function analyze(){
+  if(live.length<10)return{matches:[],votes:{B:0,P:0,T:0},recommendation:null};
+
+  const min=Number(document.getElementById("minSimilarity").value)||70;
+  const ex=document.getElementById("excludeTie").value==="yes";
+
+  const matches=patterns.map((p,i)=>{
+    const maxComparable=Math.min(live.length, p.length-1);
+    if(maxComparable<10)return null;
+
+    const liveSlice=live.slice(-maxComparable);
+    const s=sim(liveSlice,p.slice(0,maxComparable),maxComparable);
+    const exact6=recentExactMatch(liveSlice,p,6);
+
+    return{
+      idx:i,
+      pattern:p,
+      next:p[maxComparable],
+      similarity:s.similarity,
+      raw:s.matches,
+      compareLen:maxComparable,
+      exact6,
+      patternLen:p.length
+    };
+  }).filter(m=>m && m.next && m.exact6 && m.similarity>=min).sort((a,b)=>b.similarity-a.similarity);
+
+  const votes={B:0,P:0,T:0};
+  matches.forEach(m=>votes[m.next]+=m.similarity/100);
+  const use={...votes};
+  if(ex)use.T=0;
+  const sum=use.B+use.P+use.T;
+  let rec=null;
+  if(sum>0)rec=Object.entries(use).sort((a,b)=>b[1]-a[1])[0][0];
+  return{matches,votes,recommendation:rec}
+}
+function confidence(c,r){if(c<5)return{label:"낮음",cls:"danger",text:"매칭 수가 너무 적음"};if(c<10)return{label:"약함",cls:"warn",text:"참고만 가능"};if(r>=65)return{label:"보통",cls:"ok",text:"조건부 참고 가능"};return{label:"약함",cls:"warn",text:"추천 비율이 약함"}}
+
+function saveLiveToDB(){
+  if(live.length < 20){
+    alert("DB 저장은 최소 20개 결과가 필요합니다. 현재 " + live.length + "개입니다.");
+    return;
+  }
+
+  // V7.4: 최근 20개로 자르지 않고 현재 실전 입력 전체를 그대로 저장
+  const pattern = live.map(norm).filter(Boolean);
+
+  if(pattern.length < 20){
+    alert("유효 결과가 20개 미만입니다.");
+    return;
+  }
+
+  const key = pattern.join("");
+  const exists = patterns.some(p => p.join("") === key);
+  if(exists){
+    alert("이미 DB에 같은 패턴이 있습니다.");
+    return;
+  }
+
+  patterns.push(pattern);
+  saveLocal();
+  haptic();
+  render();
+  alert("실전 최근 입력 " + pattern.length + "개를 DB에 저장했습니다.");
+}
+
+function render(){document.getElementById("beforeDedup").textContent=patterns.length+"개";document.getElementById("afterDedup").textContent=mergePatterns([],patterns).length+"개";renderPatternSlots();document.getElementById("liveSlots").innerHTML=Array.from({length:40},(_,i)=>`<div class="slot ${live[i]||""}">${live[i]||i+1}</div>`).join("");document.getElementById("liveFlow").innerHTML=live.map(chip).join("")||`<span class="muted">아직 입력 없음</span>`;document.getElementById("dbCount").textContent=patterns.length+"개";document.getElementById("readyState").textContent=patterns.length&&live.length>=10?"예":"아니오";document.getElementById("liveCount").textContent=live.length+"/40";const a=analyze(),mc=a.matches.length,minM=Number(document.getElementById("minMatches").value)||10,vs=a.votes,sum=vs.B+vs.P+vs.T,rates={B:sum?vs.B/sum*100:0,P:sum?vs.P/sum*100:0,T:sum?vs.T/sum*100:0},rr=a.recommendation?rates[a.recommendation]:0,cf=confidence(mc,rr);if(live.length<10)document.getElementById("recommendPanel").innerHTML=`<div class="box warn yellow">최근 10개 이상 입력하면 분석이 가능합니다. 현재 ${live.length}개 입력됨.</div>`;else if(!a.recommendation)document.getElementById("recommendPanel").innerHTML=`<div class="box danger red">최근 6개 완전일치 + 전체 유사도 조건을 통과한 패턴이 없습니다. 진입 금지.</div>`;else{const cls=a.recommendation==="B"?"red":a.recommendation==="P"?"blue":"green";const depth=inputDepthInfo();document.getElementById("recommendPanel").innerHTML=`<div class="panel"><div class="muted">다음 후보</div><div class="big ${cls}">${label(a.recommendation)}</div><div>매칭 기반 ${pct(rr)}</div><div class="bar"><div class="fill" style="width:${Math.min(100,rr)}%"></div></div></div><div class="box ${depth.cls}"><b>입력 깊이: ${depth.label}</b><br><span class="muted">${depth.text} / 현재 ${live.length}개 비교</span></div><div class="box ${cf.cls}"><b>매칭 신뢰도: ${cf.label}</b><br><span class="muted">${cf.text} / 매칭 ${mc}개</span></div><div class="exact-note"><b>V7 기준</b><br><span class="exact-ok">최근 6개 완전일치</span> + 전체 유사도 통과 패턴만 사용합니다. 흐름분석은 제외했습니다.</div>`}let ec="danger",et="진입 금지",em="매칭 조건이 부족합니다.";let requiredRate=65;if(live.length<=11)requiredRate=75;else if(live.length<=13)requiredRate=70;if(mc>=minM&&rr>=requiredRate&&live.length>=12){ec="ok";et="진입 가능";em="단, 자금관리 기준을 먼저 확인하세요."}else if(mc>=5&&rr>=58){ec="warn";et="주의";em=live.length<=11?"10~11개 입력은 참고용입니다. 실제 진입은 보수적으로 보세요.":"강한 신호는 아닙니다. 베팅 축소 또는 관망."}document.getElementById("entryPanel").innerHTML=`<div class="box ${ec}"><h3>${et}</h3><p>${em}</p><p class="muted">매칭 ${mc}개 / 추천비율 ${pct(rr)}</p></div>`;document.getElementById("votePanel").innerHTML=`<div class="grid3"><div class="stat"><div class="label">Banker</div><div class="value red">${pct(rates.B)}</div></div><div class="stat"><div class="label">Player</div><div class="value blue">${pct(rates.P)}</div></div><div class="stat"><div class="label">Tie</div><div class="value green">${pct(rates.T)}</div></div></div>`;document.getElementById("matchTable").innerHTML=a.matches.slice(0,30).map((m,i)=>`<tr><td>${i+1}</td><td><b>${pct(m.similarity)}</b><br><span class="muted">${m.raw}/${m.compareLen||live.length} 일치 · 최근6 완전일치 · DB ${m.patternLen||20}개</span></td><td>${chip(m.next)} ${label(m.next)}</td><td class="pattern">${m.pattern.slice(0,15).join(" ")} → <b>${m.next}</b> ${m.pattern.slice(16).join(" ")}</td></tr>`).join("")||`<tr><td colspan="4" class="muted">매칭 결과 없음</td></tr>`;renderMoney();renderROI()}
+function renderMoney(){const st=Number(document.getElementById("startBankroll").value)||0,cur=Number(document.getElementById("currentBankroll").value)||0,tg=Number(document.getElementById("targetProfit").value)||0,sl=Number(document.getElementById("stopLoss").value)||0,ls=Number(document.getElementById("losingStreak").value)||0,unit=Number(document.getElementById("betUnit").value)||0,pr=cur-st,rate=st?pr/st*100:0;let cls="ok",title="진입 가능",msg="즉시 중단 신호는 약합니다.";if(pr>=tg&&tg>0){title="목표 달성 - 종료 권장";msg="수익 반납 위험이 큽니다."}else if(pr<=-sl&&sl>0){cls="danger";title="손절 도달 - 진입 금지";msg="추가 진입 위험."}else if(ls>=5){cls="danger";title="연패 위험 - 진입 금지";msg="감정 베팅 위험."}else if(ls>=3){cls="warn";title="주의 - 베팅 축소";msg="쉬거나 베팅을 줄이세요."}const ur=cur?unit/cur*100:0;document.getElementById("moneyPanel").innerHTML=`<div class="box ${cls}"><h3>${title}</h3><p>${msg}</p></div><div class="grid4"><div class="stat"><div class="label">현재 손익</div><div class="value ${pr>=0?'green':'red'}">${won(pr)}</div></div><div class="stat"><div class="label">수익률</div><div class="value ${pr>=0?'green':'red'}">${pct(rate)}</div></div><div class="stat"><div class="label">1회 베팅 비율</div><div class="value ${ur>3?'red':'green'}">${pct(ur)}</div></div><div class="stat"><div class="label">최근 연패</div><div class="value">${ls}회</div></div></div>`}
+function recordBet(win){const amt=Number(document.getElementById("betAmount").value)||0;if(!amt){alert("베팅금을 입력하세요.");return}betLogs.push({win,amt,time:new Date().toLocaleTimeString()});const cur=Number(document.getElementById("currentBankroll").value)||0;document.getElementById("currentBankroll").value=win?cur+amt:cur-amt;render()}
+function clearBets(){if(confirm("베팅 로그를 삭제할까요?")){betLogs=[];render()}}
+function renderROI(){let eq=0,peak=0,dd=0,tb=0,w=0;betLogs.forEach(b=>{tb+=b.amt;eq+=b.win?b.amt:-b.amt;if(b.win)w++;if(eq>peak)peak=eq;dd=Math.max(dd,peak-eq)});const roi=tb?eq/tb*100:0;document.getElementById("roiPanel").innerHTML=`<div class="grid3"><div class="stat"><div class="label">총 손익</div><div class="value ${eq>=0?'green':'red'}">${won(eq)}</div></div><div class="stat"><div class="label">ROI</div><div class="value ${roi>=0?'green':'red'}">${pct(roi)}</div></div><div class="stat"><div class="label">최대 낙폭</div><div class="value red">${won(dd)}</div></div></div><p class="muted">승률: ${betLogs.length?pct(w/betLogs.length*100):"0.0%"} / 총 ${betLogs.length}회</p>`;document.getElementById("betLog").innerHTML=betLogs.slice().reverse().slice(0,30).map((b,i)=>`#${betLogs.length-i} ${b.time} / ${b.win?'승':'패'} / ${won(b.amt)}`).join("<br>")||`<span class="muted">로그 없음</span>`}
+function saveAll(){const ids=["minSimilarity","minMatches","excludeTie","startBankroll","currentBankroll","targetProfit","stopLoss","losingStreak","betUnit"];let d={app:"Baccarat Pattern Matcher",version:"v5-min10",live,patterns,betLogs,patternInput,detectedPattern,savedAt:new Date().toLocaleString()};ids.forEach(id=>d[id]=document.getElementById(id).value);localStorage.setItem(STORAGE_KEY,JSON.stringify(d));document.getElementById("savedAt").textContent="마지막 저장: "+d.savedAt}
+function loadAll(){try{const d=JSON.parse(localStorage.getItem(STORAGE_KEY)||"{}");live=d.live||[];patterns=normalizePatternArray(d.patterns||[]);betLogs=d.betLogs||[];patternInput=(d.patternInput||[]).map(norm).filter(Boolean).slice(0,20);detectedPattern=(d.detectedPattern||[]).map(norm).filter(Boolean);["minSimilarity","minMatches","excludeTie","startBankroll","currentBankroll","targetProfit","stopLoss","losingStreak","betUnit"].forEach(id=>{if(d[id]!==undefined)document.getElementById(id).value=d[id]});if(d.savedAt)document.getElementById("savedAt").textContent="마지막 저장: "+d.savedAt}catch(e){}}
+function exportData(){const payload={app:"Baccarat Pattern Matcher",version:"v5-min10",exportedAt:new Date().toISOString(),patterns,live,betLogs,patternInput};const blob=new Blob([JSON.stringify(payload,null,2)],{type:"application/json"}),url=URL.createObjectURL(blob),a=document.createElement("a");a.href=url;a.download="baccarat-pattern-db-v5-min10.json";a.click();URL.revokeObjectURL(url)}
+if("serviceWorker"in navigator){window.addEventListener("load",()=>navigator.serviceWorker.register("./sw.js").catch(()=>{}))}
+loadAll();render();
+</script>
+</body></html>
