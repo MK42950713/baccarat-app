@@ -1,7 +1,7 @@
 {
-  "name": "Baccarat Pattern Matcher V7.4.6",
-  "short_name": "Baccarat V7.4.6",
-  "description": "DB save hard fix for 20+ length patterns",
+  "name": "Baccarat Pattern Matcher V7.4.7",
+  "short_name": "Baccarat V7.4.7",
+  "description": "Stable restore and DB save fix",
   "theme_color": "#0a0a0a",
   "background_color": "#0a0a0a",
   "display": "standalone",

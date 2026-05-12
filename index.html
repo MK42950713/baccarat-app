@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Baccarat Pattern Matcher V7.4.6 - DB Save Hard Fix</title>
+<title>Baccarat Pattern Matcher V7.4.7 Stable DB Save</title>
 <link rel="manifest" href="./manifest.json" />
 <meta name="theme-color" content="#0a0a0a" />
 <style>
@@ -57,12 +57,12 @@
 </style>
 </head>
 <body>
-<div style="position:fixed;right:8px;bottom:8px;z-index:9999;background:#14532d;color:#bbf7d0;border:1px solid #16a34a;border-radius:999px;padding:6px 10px;font-size:11px;font-weight:900">V7.4.6 / DB저장 완전수정</div>
+<div style="position:fixed;right:8px;bottom:8px;z-index:9999;background:#14532d;color:#bbf7d0;border:1px solid #16a34a;border-radius:999px;padding:6px 10px;font-size:11px;font-weight:900">V7.4.7 / 안정복구+DB저장</div>
 <div class="app"><div class="container">
 <div class="header">
   <div>
-    <div class="controls"><h1>Baccarat Pattern Matcher V7.4.6</h1><span class="v3badge">40 INPUT / RECENT 6 EXACT</span></div>
-    <div class="subtitle">과거 20개 패턴 DB와 현재 10~15개 흐름을 비교해 다음 후보를 추출합니다.</div>
+    <div class="controls"><h1>Baccarat Pattern Matcher V7.4.7</h1><span class="v3badge">40 INPUT / RECENT 6 EXACT</span></div>
+    <div class="subtitle">과거 DB와 현재 10~40개 흐름을 비교해 다음 후보를 추출합니다.</div>
   </div>
   <div class="controls">
     <button onclick="saveAll()">저장</button>
@@ -158,7 +158,7 @@ function recordRecommendationResult(actual){
   });
 }
 
-function addLive(v){if(live.length<40){haptic();recordRecommendationResult(v);live.push(v);saveAll();render()}}function undoLive(){if(live.length){live.pop();if(recLogs.length)recLogs.pop();saveAll();render()}}function resetLive(){live=[];render()}
+function addLive(v){if(live.length<40){haptic();recordRecommendationResult(v);live.push(v);saveAll();render()}}}function undoLive(){if(live.length){live.pop();if(recLogs.length)recLogs.pop();saveAll();render()}}function resetLive(){live=[];saveAll();render()}
 
 function clearDetected(){
   detectedPattern=[];
@@ -280,7 +280,7 @@ function savePattern(){const a=parse(document.getElementById("patternInput").val
 function clearPatterns(){if(confirm("DB를 모두 삭제할까요?")){patterns=[];render()}}
 function addSamplePatterns(){["B P B B P P B T B P P B B B P B P B B P","B P B P P P B T B P P B B B P B B P B P","P B P P B B P B P B B P P P B P B P P B","B B P B P B B P T B P P B B P B P B P B","P P B P B P P B B P B B P P B P P B B P","B P P B B P B P B B P T B P B P B B P B","B B B P P B P B P P B B B P P B P B P B","P B B P B P B B P P B P B B P P B P B B","B P B B P B B T B P P B P B P P B B P B","P B P B P P B B P B B P T P B P B P B B","B B P P B P B P B B P B P P B B P B B P","P P P B B P B P P B B P B P B P B B P P","B P B P B P B P B P B P B P B B P B P B","P B P B P B P B P B P B P B P P B P B P","B B P B B P P B T P B B P B P B B P P B","P B B P P B B P B P P B B P T P B B P B","B P P P B B P B B P B P P B B B P B P P","P B B B P P B P P B P B B P P P B P B B","B B B B P P P B B P P B T B P B P P B B","P P B B B P P B P B T B P P B B P B P B","B P T B P B P P B B P B B P B B P P B P","P B T P B P B B P P B P P B P P B B P B","B B P T B P B B P B P P B P B B B P P B","P P B T P B P P B P B B P B P P P B B P","B P B B B P B P P B B P B T P B P B B P","P B P P P B P B B P P B P T B P B P P B","B B P P P B B P B P B B P P B P T B P B","P P B B B P P B P B P P B B P B T P B P","B P B P P B B B P P B P B P B B P T B P","P B P B B P P P B B P B P B P P B T P B"].forEach(s=>{const a=parse(s);if(a.length===20)patterns.push(a)});dedupePatterns(false);render()}
 function patternKey(p){return Array.isArray(p)?p.join(""):""}function normalizePatternArray(arr){if(!Array.isArray(arr))return[];return arr.map(x=>Array.isArray(x)?x.map(norm).filter(Boolean):parse(String(x))).filter(p=>p.length>=20)}
-function mergePatterns(a,b){const map=new Map();a.forEach(p=>{if(Array.isArray(p)&&p.length>=20)map.set(patternKey(p),p)});b.forEach(p=>{if(Array.isArray(p)&&p.length>=20)map.set(patternKey(p),p)});return[...map.values()]});b.forEach(p=>{if(p.length===20)map.set(patternKey(p),p)});return[...map.values()]}
+function mergePatterns(a,b){const map=new Map();a.forEach(p=>{if(Array.isArray(p)&&p.length>=20)map.set(patternKey(p),p)});b.forEach(p=>{if(Array.isArray(p)&&p.length>=20)map.set(patternKey(p),p)});return[...map.values()]}
 function dedupePatterns(show=true){const before=patterns.length;patterns=mergePatterns([],patterns);const after=patterns.length;document.getElementById("beforeDedup").textContent=before+"개";document.getElementById("afterDedup").textContent=after+"개";if(show){saveAll();render();alert("중복 제거 완료: "+before+"개 → "+after+"개")}}
 function importData(event){const file=event.target.files&&event.target.files[0];if(!file)return;const reader=new FileReader();reader.onload=function(){try{const data=JSON.parse(reader.result);const imported=normalizePatternArray(data.patterns||data.db||[]);if(imported.length===0){alert("불러올 수 있는 20개 이상 패턴이 없습니다.");return}const merge=confirm("확인 = 기존 DB에 병합\\n취소 = 기존 DB 덮어쓰기");const before=patterns.length;patterns=merge?mergePatterns(patterns,imported):mergePatterns([],imported);if(Array.isArray(data.live))live=data.live.map(norm).filter(Boolean).slice(0,40);if(Array.isArray(data.betLogs))betLogs=data.betLogs.filter(x=>x&&typeof x==="object");if(Array.isArray(data.patternInput))patternInput=data.patternInput.map(norm).filter(Boolean).slice(0,20);document.getElementById("beforeDedup").textContent=before+"개";document.getElementById("afterDedup").textContent=patterns.length+"개";document.getElementById("lastImport").textContent=new Date().toLocaleString();saveAll();render();alert("DB 불러오기 완료: 파일 패턴 "+imported.length+"개 / 현재 DB "+patterns.length+"개")}catch(e){alert("JSON 파일을 읽을 수 없습니다.")}finally{event.target.value=""}};reader.readAsText(file)}
 function clearAllData(){if(confirm("패턴 DB, 실전 입력, 베팅 로그를 모두 삭제할까요?")){live=[];patterns=[];betLogs=[];recLogs=[];patternInput=[];localStorage.removeItem(STORAGE_KEY);render();alert("전체 데이터 삭제 완료")}}
@@ -349,9 +349,6 @@ function confidence(c,r){if(c<5)return{label:"낮음",cls:"danger",text:"매칭 
 
 function saveLiveToDB(){
   if(!Array.isArray(live)) live = [];
-
-  // V7.4.6: 실전 최근 입력 전체를 그대로 DB 저장
-  // 20개로 자르지 않음. 20개, 30개, 40개 모두 가능.
   const pattern = live.map(norm).filter(Boolean);
 
   if(pattern.length < 20){
@@ -359,6 +356,7 @@ function saveLiveToDB(){
     return;
   }
 
+  // V7.4.7: 20개로 자르지 않고 현재 실전 입력 전체를 그대로 DB 저장
   const key = pattern.join("");
   const exists = patterns.some(p => Array.isArray(p) && p.join("") === key);
 
@@ -431,7 +429,7 @@ function renderMoney(){const st=Number(document.getElementById("startBankroll").
 function recordBet(win){const amt=Number(document.getElementById("betAmount").value)||0;if(!amt){alert("베팅금을 입력하세요.");return}betLogs.push({win,amt,time:new Date().toLocaleTimeString()});const cur=Number(document.getElementById("currentBankroll").value)||0;document.getElementById("currentBankroll").value=win?cur+amt:cur-amt;render()}
 function clearBets(){if(confirm("베팅 로그를 삭제할까요?")){betLogs=[];render()}}
 function renderROI(){let eq=0,peak=0,dd=0,tb=0,w=0;betLogs.forEach(b=>{tb+=b.amt;eq+=b.win?b.amt:-b.amt;if(b.win)w++;if(eq>peak)peak=eq;dd=Math.max(dd,peak-eq)});const roi=tb?eq/tb*100:0;document.getElementById("roiPanel").innerHTML=`<div class="grid3"><div class="stat"><div class="label">총 손익</div><div class="value ${eq>=0?'green':'red'}">${won(eq)}</div></div><div class="stat"><div class="label">ROI</div><div class="value ${roi>=0?'green':'red'}">${pct(roi)}</div></div><div class="stat"><div class="label">최대 낙폭</div><div class="value red">${won(dd)}</div></div></div><p class="muted">승률: ${betLogs.length?pct(w/betLogs.length*100):"0.0%"} / 총 ${betLogs.length}회</p>`;document.getElementById("betLog").innerHTML=betLogs.slice().reverse().slice(0,30).map((b,i)=>`#${betLogs.length-i} ${b.time} / ${b.win?'승':'패'} / ${won(b.amt)}`).join("<br>")||`<span class="muted">로그 없음</span>`}
-function saveAll(){const ids=["minSimilarity","minMatches","excludeTie","startBankroll","currentBankroll","targetProfit","stopLoss","losingStreak","betUnit"];let d={app:"Baccarat Pattern Matcher",version:"v7.4.5",live,patterns,betLogs,recLogs,patternInput,detectedPattern,savedAt:new Date().toLocaleString()};ids.forEach(id=>d[id]=document.getElementById(id).value);localStorage.setItem(STORAGE_KEY,JSON.stringify(d));document.getElementById("savedAt").textContent="마지막 저장: "+d.savedAt}
+function saveAll(){const ids=["minSimilarity","minMatches","excludeTie","startBankroll","currentBankroll","targetProfit","stopLoss","losingStreak","betUnit"];let d={app:"Baccarat Pattern Matcher",version:"v7.4.7",live,patterns,betLogs,recLogs,patternInput,detectedPattern,savedAt:new Date().toLocaleString()};ids.forEach(id=>d[id]=document.getElementById(id).value);localStorage.setItem(STORAGE_KEY,JSON.stringify(d));document.getElementById("savedAt").textContent="마지막 저장: "+d.savedAt}
 function loadAll(){try{const d=JSON.parse(localStorage.getItem(STORAGE_KEY)||"{}");live=d.live||[];patterns=normalizePatternArray(d.patterns||[]);betLogs=d.betLogs||[];recLogs=d.recLogs||[];patternInput=(d.patternInput||[]).map(norm).filter(Boolean).slice(0,20);detectedPattern=(d.detectedPattern||[]).map(norm).filter(Boolean);["minSimilarity","minMatches","excludeTie","startBankroll","currentBankroll","targetProfit","stopLoss","losingStreak","betUnit"].forEach(id=>{if(d[id]!==undefined)document.getElementById(id).value=d[id]});if(d.savedAt)document.getElementById("savedAt").textContent="마지막 저장: "+d.savedAt}catch(e){}}
 function exportData(){const payload={app:"Baccarat Pattern Matcher",version:"v5-min10",exportedAt:new Date().toISOString(),patterns,live,betLogs,recLogs,patternInput};const blob=new Blob([JSON.stringify(payload,null,2)],{type:"application/json"}),url=URL.createObjectURL(blob),a=document.createElement("a");a.href=url;a.download="baccarat-pattern-db-v7-4-4.json";a.click();URL.revokeObjectURL(url)}
 if("serviceWorker"in navigator){window.addEventListener("load",()=>navigator.serviceWorker.register("./sw.js").catch(()=>{}))}
