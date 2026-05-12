@@ -1,7 +1,7 @@
 {
-  "name": "Baccarat Pattern Matcher V7.4.4",
-  "short_name": "Baccarat V7.4.4",
-  "description": "Auto recommendation hit/miss tracking",
+  "name": "Baccarat Pattern Matcher V7.4.5",
+  "short_name": "Baccarat V7.4.5",
+  "description": "Live input DB save fix",
   "theme_color": "#0a0a0a",
   "background_color": "#0a0a0a",
   "display": "standalone",

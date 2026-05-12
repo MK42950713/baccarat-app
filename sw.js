@@ -1,5 +1,5 @@
 
-const CACHE_NAME = 'baccarat-v7-4-4-cache';
+const CACHE_NAME = 'baccarat-v7-4-5-cache';
 
 self.addEventListener('install', event => {
   self.skipWaiting();
