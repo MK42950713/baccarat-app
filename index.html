@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Baccarat Pattern Matcher V7.4.8 Stable Rebuild</title>
+<title>Baccarat Pattern Matcher V7.4.9</title>
 <link rel="manifest" href="./manifest.json" />
 <meta name="theme-color" content="#0a0a0a" />
 <style>
@@ -54,14 +54,26 @@
   .streakMetric .smallLabel{font-size:11px}
   .streakMetric .bigNum{font-size:22px}
 }
+
+.bucketStats{margin-top:14px;border:1px solid #262626;border-radius:16px;overflow:hidden;background:#0a0a0a}
+.bucketTitle{padding:10px 12px;font-weight:1000;border-bottom:1px solid #262626}
+.bucketRow{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;padding:9px 12px;border-bottom:1px solid #1f1f1f;align-items:center;font-size:13px}
+.bucketRow:last-child{border-bottom:0}
+.bucketNow{background:rgba(250,204,21,.13);outline:1px solid rgba(250,204,21,.45)}
+.bucketLabel{font-weight:900}
+.bucketRate{font-weight:1000;text-align:right}
+.resetMaxBtn{margin-left:auto;background:#3f3f46;color:#fff;border:1px solid #52525b;border-radius:999px;padding:8px 10px;font-size:12px;font-weight:900}
+.streakHeader{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:8px}
+@media(max-width:900px){.bucketRow{grid-template-columns:1fr 1fr 1fr;font-size:12px;padding:8px 10px}.resetMaxBtn{padding:7px 9px}}
+
 </style>
 </head>
 <body>
-<div style="position:fixed;right:8px;bottom:8px;z-index:9999;background:#14532d;color:#bbf7d0;border:1px solid #16a34a;border-radius:999px;padding:6px 10px;font-size:11px;font-weight:900">V7.4.8 / 안정재빌드</div>
+<div style="position:fixed;right:8px;bottom:8px;z-index:9999;background:#14532d;color:#bbf7d0;border:1px solid #16a34a;border-radius:999px;padding:6px 10px;font-size:11px;font-weight:900">V7.4.9 / 구간성과+최대리셋</div>
 <div class="app"><div class="container">
 <div class="header">
   <div>
-    <div class="controls"><h1>Baccarat Pattern Matcher V7.4.8</h1><span class="v3badge">40 INPUT / RECENT 6 EXACT</span></div>
+    <div class="controls"><h1>Baccarat Pattern Matcher V7.4.9</h1><span class="v3badge">40 INPUT / RECENT 6 EXACT</span></div>
     <div class="subtitle">과거 DB와 현재 10~40개 흐름을 비교해 다음 후보를 추출합니다.</div>
   </div>
   <div class="controls">
@@ -131,7 +143,7 @@
 </div></div>
 
 <script>
-const STORAGE_KEY="baccarat-pattern-matcher-v5-min10";let live=[],patterns=[],betLogs=[],recLogs=[],patternInput=[],detectedPattern=[];
+const STORAGE_KEY="baccarat-pattern-matcher-v5-min10";let live=[],patterns=[],betLogs=[],recLogs=[],streakResetIndex=0,patternInput=[],detectedPattern=[];
 function norm(x){x=String(x).trim().toUpperCase();if(["B","BANKER","뱅커"].includes(x))return"B";if(["P","PLAYER","플레이어"].includes(x))return"P";if(["T","TIE","타이"].includes(x))return"T";return null}
 function haptic(){try{if(navigator.vibrate)navigator.vibrate(25)}catch(e){}}
 function parse(t){return String(t).split(/[\\s,>-]+/).map(norm).filter(Boolean)}
@@ -140,21 +152,26 @@ function label(v){return v==="B"?"Banker":v==="P"?"Player":"Tie"}function won(n)
 function getCurrentRecommendationForLog(){
   try{
     const a = analyze();
-    return a && a.recommendation ? a.recommendation : null;
+    if(!a || !a.recommendation) return null;
+    const votes = a.votes || {B:0,P:0,T:0};
+    const sum = (votes.B||0)+(votes.P||0)+(votes.T||0);
+    const matchRate = sum ? (votes[a.recommendation]||0) / sum * 100 : 0;
+    return {recommendation:a.recommendation, matchRate};
   }catch(e){
     return null;
   }
 }
 function recordRecommendationResult(actual){
-  const rec = getCurrentRecommendationForLog();
-  // Tie는 추천 성과 집계에서 제외한다. Banker/Player 추천만 집계.
-  if(!rec || rec==="T") return;
+  const info = getCurrentRecommendationForLog();
+  if(!info || !info.recommendation || info.recommendation==="T") return;
+  const rec = info.recommendation;
   const hit = rec === actual;
   recLogs.push({
     time:new Date().toLocaleString(),
     recommendation:rec,
     actual:actual,
-    hit:hit
+    hit:hit,
+    matchRate:Number(info.matchRate||0)
   });
 }
 
@@ -375,18 +392,23 @@ function saveLiveToDB(){
 
 function calcStreakStats(){
   const logs = recLogs || [];
-  let maxHit=0, maxMiss=0, curHit=0, curMiss=0, total=0, hit=0, miss=0;
-
+  let total=0, hit=0, miss=0;
   logs.forEach(x => {
     if(!x || x.hit === undefined) return;
     total++;
+    if(x.hit === true) hit++;
+    else miss++;
+  });
+
+  const sliced = logs.slice(streakResetIndex || 0);
+  let maxHit=0, maxMiss=0, curHit=0, curMiss=0;
+  sliced.forEach(x => {
+    if(!x || x.hit === undefined) return;
     if(x.hit === true){
-      hit++;
       curHit++;
       curMiss=0;
       if(curHit>maxHit)maxHit=curHit;
     }else{
-      miss++;
       curMiss++;
       curHit=0;
       if(curMiss>maxMiss)maxMiss=curMiss;
@@ -396,11 +418,18 @@ function calcStreakStats(){
   const rate = total ? hit/total*100 : 0;
   return {total, hit, miss, rate, maxHit, maxMiss};
 }
+function resetMaxStreakOnly(){
+  if(confirm("최대 적중/최대 미적중 기록만 리셋할까요? 전체 적중/실패 누적은 유지됩니다.")){
+    streakResetIndex = (recLogs || []).length;
+    saveAll();
+    render();
+  }
+}
 function renderStreakSummary(){
   const el = document.getElementById("streakSummary");
   if(!el)return;
   const s = calcStreakStats();
-  el.innerHTML = `<div class="streakRow">
+  el.innerHTML = `<div class="streakHeader"><b>추천 성과 요약</b><button class="resetMaxBtn" onclick="resetMaxStreakOnly()">최대기록 리셋</button></div><div class="streakRow">
     <div class="streakMain">
       <div class="streakMetric">
         <div class="smallLabel">최대 적중</div>
@@ -421,14 +450,60 @@ function renderStreakSummary(){
   </div>`;
 }
 
-function render(){document.getElementById("beforeDedup").textContent=patterns.length+"개";document.getElementById("afterDedup").textContent=mergePatterns([],patterns).length+"개";renderPatternSlots();document.getElementById("liveSlots").innerHTML=Array.from({length:40},(_,i)=>`<div class="slot ${live[i]||""}">${live[i]||i+1}</div>`).join("");renderStreakSummary();document.getElementById("dbCount").textContent=patterns.length+"개";document.getElementById("readyState").textContent=patterns.length&&live.length>=10?"예":"아니오";document.getElementById("liveCount").textContent=live.length+"/40";const a=analyze(),mc=a.matches.length,minM=Number(document.getElementById("minMatches").value)||10,vs=a.votes,sum=vs.B+vs.P+vs.T,rates={B:sum?vs.B/sum*100:0,P:sum?vs.P/sum*100:0,T:sum?vs.T/sum*100:0},rr=a.recommendation?rates[a.recommendation]:0,cf=confidence(mc,rr);if(live.length<10)document.getElementById("recommendPanel").innerHTML=`<div class="box warn yellow">최근 10개 이상 입력하면 분석이 가능합니다. 현재 ${live.length}개 입력됨.</div>`;else if(!a.recommendation)document.getElementById("recommendPanel").innerHTML=`<div class="box danger red">최근 6개 완전일치 + 전체 유사도 조건을 통과한 패턴이 없습니다. 진입 금지.</div>`;else{const cls=a.recommendation==="B"?"red":a.recommendation==="P"?"blue":"green";const depth=inputDepthInfo();document.getElementById("recommendPanel").innerHTML=`<div class="panel"><div class="muted">다음 후보</div><div class="big ${cls}">${label(a.recommendation)}</div><div>매칭 기반 ${pct(rr)}</div><div class="bar"><div class="fill" style="width:${Math.min(100,rr)}%"></div></div></div><div class="box ${depth.cls}"><b>입력 깊이: ${depth.label}</b><br><span class="muted">${depth.text} / 현재 ${live.length}개 비교</span></div><div class="box ${cf.cls}"><b>매칭 신뢰도: ${cf.label}</b><br><span class="muted">${cf.text} / 매칭 ${mc}개</span></div><div class="exact-note"><b>V7 기준</b><br><span class="exact-ok">최근 6개 완전일치</span> + 전체 유사도 통과 패턴만 사용합니다. 흐름분석은 제외했습니다.</div>`}let ec="danger",et="진입 금지",em="매칭 조건이 부족합니다.";let requiredRate=65;if(live.length<=11)requiredRate=75;else if(live.length<=13)requiredRate=70;if(mc>=minM&&rr>=requiredRate&&live.length>=12){ec="ok";et="진입 가능";em="단, 자금관리 기준을 먼저 확인하세요."}else if(mc>=5&&rr>=58){ec="warn";et="주의";em=live.length<=11?"10~11개 입력은 참고용입니다. 실제 진입은 보수적으로 보세요.":"강한 신호는 아닙니다. 베팅 축소 또는 관망."}document.getElementById("entryPanel").innerHTML=`<div class="box ${ec}"><h3>${et}</h3><p>${em}</p><p class="muted">매칭 ${mc}개 / 추천비율 ${pct(rr)}</p></div>`;document.getElementById("votePanel").innerHTML=`<div class="grid3"><div class="stat"><div class="label">Banker</div><div class="value red">${pct(rates.B)}</div></div><div class="stat"><div class="label">Player</div><div class="value blue">${pct(rates.P)}</div></div><div class="stat"><div class="label">Tie</div><div class="value green">${pct(rates.T)}</div></div></div>`;document.getElementById("matchTable").innerHTML=a.matches.slice(0,30).map((m,i)=>`<tr><td>${i+1}</td><td><b>${pct(m.similarity)}</b><br><span class="muted">${m.raw}/${m.compareLen||live.length} 일치 · 최근6 완전일치 · DB ${m.patternLen||20}개</span></td><td>${chip(m.next)} ${label(m.next)}</td><td class="pattern">${m.pattern.slice(0,15).join(" ")} → <b>${m.next}</b> ${m.pattern.slice(16).join(" ")}</td></tr>`).join("")||`<tr><td colspan="4" class="muted">매칭 결과 없음</td></tr>`;renderMoney();renderROI()}
+
+function matchBucket(rate){
+  const r = Number(rate)||0;
+  if(r>=90) return "90~100%";
+  if(r>=80) return "80~89%";
+  if(r>=70) return "70~79%";
+  if(r>=60) return "60~69%";
+  if(r>=50) return "50~59%";
+  return "50% 미만";
+}
+function calcMatchBucketStats(){
+  const keys = ["50~59%","60~69%","70~79%","80~89%","90~100%"];
+  const out = {};
+  keys.forEach(k => out[k] = {total:0, hit:0, miss:0, rate:0});
+  (recLogs || []).forEach(x => {
+    if(!x || x.hit === undefined || x.matchRate === undefined) return;
+    const k = matchBucket(x.matchRate);
+    if(!out[k]) return;
+    out[k].total++;
+    if(x.hit === true) out[k].hit++;
+    else out[k].miss++;
+  });
+  keys.forEach(k => {
+    const b = out[k];
+    b.rate = b.total ? b.hit / b.total * 100 : 0;
+  });
+  return out;
+}
+function renderBucketStats(currentRate){
+  const stats = calcMatchBucketStats();
+  const current = matchBucket(currentRate);
+  const keys = ["50~59%","60~69%","70~79%","80~89%","90~100%"];
+  return `<div class="bucketStats">
+    <div class="bucketTitle">매칭구간 성과</div>
+    ${keys.map(k => {
+      const b = stats[k];
+      const now = k === current ? " bucketNow" : "";
+      return `<div class="bucketRow${now}">
+        <div class="bucketLabel">${k}${k===current?" ★":""}</div>
+        <div>적중 ${b.hit} / 전체 ${b.total}</div>
+        <div class="bucketRate">${b.total ? b.rate.toFixed(1) : "0.0"}%</div>
+      </div>`;
+    }).join("")}
+  </div>`;
+}
+
+function render(){document.getElementById("beforeDedup").textContent=patterns.length+"개";document.getElementById("afterDedup").textContent=mergePatterns([],patterns).length+"개";renderPatternSlots();document.getElementById("liveSlots").innerHTML=Array.from({length:40},(_,i)=>`<div class="slot ${live[i]||""}">${live[i]||i+1}</div>`).join("");renderStreakSummary();document.getElementById("dbCount").textContent=patterns.length+"개";document.getElementById("readyState").textContent=patterns.length&&live.length>=10?"예":"아니오";document.getElementById("liveCount").textContent=live.length+"/40";const a=analyze(),mc=a.matches.length,minM=Number(document.getElementById("minMatches").value)||10,vs=a.votes,sum=vs.B+vs.P+vs.T,rates={B:sum?vs.B/sum*100:0,P:sum?vs.P/sum*100:0,T:sum?vs.T/sum*100:0},rr=a.recommendation?rates[a.recommendation]:0,cf=confidence(mc,rr);if(live.length<10)document.getElementById("recommendPanel").innerHTML=`<div class="box warn yellow">최근 10개 이상 입력하면 분석이 가능합니다. 현재 ${live.length}개 입력됨.</div>`;else if(!a.recommendation)document.getElementById("recommendPanel").innerHTML=`<div class="box danger red">최근 6개 완전일치 + 전체 유사도 조건을 통과한 패턴이 없습니다. 진입 금지.</div>`;else{const cls=a.recommendation==="B"?"red":a.recommendation==="P"?"blue":"green";const depth=inputDepthInfo();document.getElementById("recommendPanel").innerHTML=`<div class="panel"><div class="muted">다음 후보</div><div class="big ${cls}">${label(a.recommendation)}</div><div>매칭 기반 ${pct(rr)}</div><div class="bar"><div class="fill" style="width:${Math.min(100,rr)}%"></div></div></div><div class="box ${depth.cls}"><b>입력 깊이: ${depth.label}</b><br><span class="muted">${depth.text} / 현재 ${live.length}개 비교</span></div><div class="box ${cf.cls}"><b>매칭 신뢰도: ${cf.label}</b><br><span class="muted">${cf.text} / 매칭 ${mc}개</span></div><div class="exact-note"><b>V7 기준</b><br><span class="exact-ok">최근 6개 완전일치</span> + 전체 유사도 통과 패턴만 사용합니다. 흐름분석은 제외했습니다.</div>${renderBucketStats(rr)}`}let ec="danger",et="진입 금지",em="매칭 조건이 부족합니다.";let requiredRate=65;if(live.length<=11)requiredRate=75;else if(live.length<=13)requiredRate=70;if(mc>=minM&&rr>=requiredRate&&live.length>=12){ec="ok";et="진입 가능";em="단, 자금관리 기준을 먼저 확인하세요."}else if(mc>=5&&rr>=58){ec="warn";et="주의";em=live.length<=11?"10~11개 입력은 참고용입니다. 실제 진입은 보수적으로 보세요.":"강한 신호는 아닙니다. 베팅 축소 또는 관망."}document.getElementById("entryPanel").innerHTML=`<div class="box ${ec}"><h3>${et}</h3><p>${em}</p><p class="muted">매칭 ${mc}개 / 추천비율 ${pct(rr)}</p></div>`;document.getElementById("votePanel").innerHTML=`<div class="grid3"><div class="stat"><div class="label">Banker</div><div class="value red">${pct(rates.B)}</div></div><div class="stat"><div class="label">Player</div><div class="value blue">${pct(rates.P)}</div></div><div class="stat"><div class="label">Tie</div><div class="value green">${pct(rates.T)}</div></div></div>`;document.getElementById("matchTable").innerHTML=a.matches.slice(0,30).map((m,i)=>`<tr><td>${i+1}</td><td><b>${pct(m.similarity)}</b><br><span class="muted">${m.raw}/${m.compareLen||live.length} 일치 · 최근6 완전일치 · DB ${m.patternLen||20}개</span></td><td>${chip(m.next)} ${label(m.next)}</td><td class="pattern">${m.pattern.slice(0,15).join(" ")} → <b>${m.next}</b> ${m.pattern.slice(16).join(" ")}</td></tr>`).join("")||`<tr><td colspan="4" class="muted">매칭 결과 없음</td></tr>`;renderMoney();renderROI()}
 function renderMoney(){const st=Number(document.getElementById("startBankroll").value)||0,cur=Number(document.getElementById("currentBankroll").value)||0,tg=Number(document.getElementById("targetProfit").value)||0,sl=Number(document.getElementById("stopLoss").value)||0,ls=Number(document.getElementById("losingStreak").value)||0,unit=Number(document.getElementById("betUnit").value)||0,pr=cur-st,rate=st?pr/st*100:0;let cls="ok",title="진입 가능",msg="즉시 중단 신호는 약합니다.";if(pr>=tg&&tg>0){title="목표 달성 - 종료 권장";msg="수익 반납 위험이 큽니다."}else if(pr<=-sl&&sl>0){cls="danger";title="손절 도달 - 진입 금지";msg="추가 진입 위험."}else if(ls>=5){cls="danger";title="연패 위험 - 진입 금지";msg="감정 베팅 위험."}else if(ls>=3){cls="warn";title="주의 - 베팅 축소";msg="쉬거나 베팅을 줄이세요."}const ur=cur?unit/cur*100:0;document.getElementById("moneyPanel").innerHTML=`<div class="box ${cls}"><h3>${title}</h3><p>${msg}</p></div><div class="grid4"><div class="stat"><div class="label">현재 손익</div><div class="value ${pr>=0?'green':'red'}">${won(pr)}</div></div><div class="stat"><div class="label">수익률</div><div class="value ${pr>=0?'green':'red'}">${pct(rate)}</div></div><div class="stat"><div class="label">1회 베팅 비율</div><div class="value ${ur>3?'red':'green'}">${pct(ur)}</div></div><div class="stat"><div class="label">최근 연패</div><div class="value">${ls}회</div></div></div>`}
 function recordBet(win){const amt=Number(document.getElementById("betAmount").value)||0;if(!amt){alert("베팅금을 입력하세요.");return}betLogs.push({win,amt,time:new Date().toLocaleTimeString()});const cur=Number(document.getElementById("currentBankroll").value)||0;document.getElementById("currentBankroll").value=win?cur+amt:cur-amt;render()}
 function clearBets(){if(confirm("베팅 로그를 삭제할까요?")){betLogs=[];render()}}
 function renderROI(){let eq=0,peak=0,dd=0,tb=0,w=0;betLogs.forEach(b=>{tb+=b.amt;eq+=b.win?b.amt:-b.amt;if(b.win)w++;if(eq>peak)peak=eq;dd=Math.max(dd,peak-eq)});const roi=tb?eq/tb*100:0;document.getElementById("roiPanel").innerHTML=`<div class="grid3"><div class="stat"><div class="label">총 손익</div><div class="value ${eq>=0?'green':'red'}">${won(eq)}</div></div><div class="stat"><div class="label">ROI</div><div class="value ${roi>=0?'green':'red'}">${pct(roi)}</div></div><div class="stat"><div class="label">최대 낙폭</div><div class="value red">${won(dd)}</div></div></div><p class="muted">승률: ${betLogs.length?pct(w/betLogs.length*100):"0.0%"} / 총 ${betLogs.length}회</p>`;document.getElementById("betLog").innerHTML=betLogs.slice().reverse().slice(0,30).map((b,i)=>`#${betLogs.length-i} ${b.time} / ${b.win?'승':'패'} / ${won(b.amt)}`).join("<br>")||`<span class="muted">로그 없음</span>`}
 function saveAll(){const ids=["minSimilarity","minMatches","excludeTie","startBankroll","currentBankroll","targetProfit","stopLoss","losingStreak","betUnit"];let d={app:"Baccarat Pattern Matcher",version:"v7.4.4-auto-hitlog",live,patterns,betLogs,recLogs,patternInput,detectedPattern,savedAt:new Date().toLocaleString()};ids.forEach(id=>d[id]=document.getElementById(id).value);localStorage.setItem(STORAGE_KEY,JSON.stringify(d));document.getElementById("savedAt").textContent="마지막 저장: "+d.savedAt}
-function loadAll(){try{const d=JSON.parse(localStorage.getItem(STORAGE_KEY)||"{}");live=d.live||[];patterns=normalizePatternArray(d.patterns||[]);betLogs=d.betLogs||[];recLogs=d.recLogs||[];patternInput=(d.patternInput||[]).map(norm).filter(Boolean).slice(0,20);detectedPattern=(d.detectedPattern||[]).map(norm).filter(Boolean);["minSimilarity","minMatches","excludeTie","startBankroll","currentBankroll","targetProfit","stopLoss","losingStreak","betUnit"].forEach(id=>{if(d[id]!==undefined)document.getElementById(id).value=d[id]});if(d.savedAt)document.getElementById("savedAt").textContent="마지막 저장: "+d.savedAt}catch(e){}}
-function exportData(){const payload={app:"Baccarat Pattern Matcher",version:"v7.4.8",exportedAt:new Date().toISOString(),patterns,live,betLogs,recLogs,patternInput};const blob=new Blob([JSON.stringify(payload,null,2)],{type:"application/json"}),url=URL.createObjectURL(blob),a=document.createElement("a");a.href=url;a.download="baccarat-pattern-db-v7-4-4.json";a.click();URL.revokeObjectURL(url)}
+function loadAll(){try{const d=JSON.parse(localStorage.getItem(STORAGE_KEY)||"{}");live=d.live||[];patterns=normalizePatternArray(d.patterns||[]);betLogs=d.betLogs||[];recLogs=d.recLogs||[];streakResetIndex=Number(d.streakResetIndex||0);patternInput=(d.patternInput||[]).map(norm).filter(Boolean).slice(0,20);detectedPattern=(d.detectedPattern||[]).map(norm).filter(Boolean);["minSimilarity","minMatches","excludeTie","startBankroll","currentBankroll","targetProfit","stopLoss","losingStreak","betUnit"].forEach(id=>{if(d[id]!==undefined)document.getElementById(id).value=d[id]});if(d.savedAt)document.getElementById("savedAt").textContent="마지막 저장: "+d.savedAt}catch(e){}}
+function exportData(){const payload={app:"Baccarat Pattern Matcher",version:"v7.4.8",exportedAt:new Date().toISOString(),patterns,live,betLogs,recLogs,streakResetIndex,patternInput};const blob=new Blob([JSON.stringify(payload,null,2)],{type:"application/json"}),url=URL.createObjectURL(blob),a=document.createElement("a");a.href=url;a.download="baccarat-pattern-db-v7-4-4.json";a.click();URL.revokeObjectURL(url)}
 if("serviceWorker"in navigator){window.addEventListener("load",()=>navigator.serviceWorker.register("./sw.js").catch(()=>{}))}
 loadAll();render();
 </script>
