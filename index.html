@@ -2,8 +2,8 @@
 <html lang="ko">
 <head>
 <meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
-<title>Baccarat Pattern Matcher V7.5.1 60 Input Zoom Fix</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+<title>Baccarat Pattern Matcher V7.5.2 Layout Fix</title>
 <link rel="manifest" href="./manifest.json" />
 <meta name="theme-color" content="#0a0a0a" />
 <style>
@@ -93,14 +93,110 @@ button,input,select,textarea{font-size:16px!important;touch-action:manipulation}
   .grid2,.grid3,.grid4{max-width:100%;overflow-x:hidden}
 }
 
+
+/* V7.5.2 mobile layout hard fix */
+html,body{
+  width:100%;
+  max-width:100%;
+  overflow-x:hidden!important;
+  -webkit-text-size-adjust:100%;
+}
+body{position:relative}
+*{box-sizing:border-box;max-width:100%}
+.app,.container,.card,.panel,.box,.biasBox,.bucketStats,.streakRow{
+  width:100%!important;
+  max-width:100%!important;
+  overflow-x:hidden!important;
+}
+.container{margin:0 auto!important}
+.controls{
+  display:flex!important;
+  flex-wrap:wrap!important;
+  gap:10px!important;
+  width:100%!important;
+  max-width:100%!important;
+  overflow:hidden!important;
+}
+.controls button,.controls .fileBtn{
+  flex:1 1 calc(33.333% - 10px)!important;
+  min-width:0!important;
+  max-width:100%!important;
+  white-space:nowrap!important;
+  font-size:16px!important;
+}
+button,input,select,textarea{
+  font-size:16px!important;
+  max-width:100%!important;
+}
+.slots{
+  display:grid!important;
+  grid-template-columns:repeat(6,minmax(0,1fr))!important;
+  gap:7px!important;
+  width:100%!important;
+  max-width:100%!important;
+  overflow:hidden!important;
+}
+.slot{
+  width:100%!important;
+  min-width:0!important;
+  height:auto!important;
+  min-height:46px!important;
+  aspect-ratio:1/1!important;
+  display:flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  line-height:1!important;
+  padding:0!important;
+  font-size:16px!important;
+}
+.patternSlots{
+  display:grid!important;
+  grid-template-columns:repeat(5,minmax(0,1fr))!important;
+  gap:7px!important;
+  width:100%!important;
+}
+.grid2,.grid3,.grid4,.biasGrid,.streakMain,.bucketRow{
+  max-width:100%!important;
+  overflow:hidden!important;
+}
+.scroll{
+  width:100%!important;
+  max-width:100%!important;
+  overflow-x:auto!important;
+}
+table{
+  width:100%!important;
+  max-width:100%!important;
+  table-layout:fixed!important;
+}
+td,th{
+  word-break:break-word!important;
+  overflow-wrap:anywhere!important;
+}
+.pattern{
+  word-break:break-word!important;
+  white-space:normal!important;
+}
+@media(max-width:600px){
+  .app{padding:14px!important}
+  .card{padding:16px!important}
+  .controls button,.controls .fileBtn{
+    flex:1 1 calc(33.333% - 8px)!important;
+    padding-left:8px!important;
+    padding-right:8px!important;
+  }
+  .slot{min-height:44px!important;font-size:15px!important}
+  .slots{grid-template-columns:repeat(6,minmax(0,1fr))!important;gap:6px!important}
+}
+
 </style>
 </head>
 <body>
-<div style="position:fixed;right:8px;bottom:8px;z-index:9999;background:#14532d;color:#bbf7d0;border:1px solid #16a34a;border-radius:999px;padding:6px 10px;font-size:11px;font-weight:900">V7.5.1 / 60칸+확대방지</div>
+<div style="position:fixed;right:8px;bottom:8px;z-index:9999;background:#14532d;color:#bbf7d0;border:1px solid #16a34a;border-radius:999px;padding:6px 10px;font-size:11px;font-weight:900">V7.5.2 / 60칸+화면폭수정</div>
 <div class="app"><div class="container">
 <div class="header">
   <div>
-    <div class="controls"><h1>Baccarat Pattern Matcher V7.5.1</h1><span class="v3badge">40 INPUT / RECENT 6 EXACT</span></div>
+    <div class="controls"><h1>Baccarat Pattern Matcher V7.5.2</h1><span class="v3badge">40 INPUT / RECENT 6 EXACT</span></div>
     <div class="subtitle">과거 DB와 현재 10~60개 흐름을 비교해 다음 후보를 추출합니다.</div>
   </div>
   <div class="controls">
