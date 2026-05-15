@@ -2,8 +2,8 @@
 <html lang="ko">
 <head>
 <meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Baccarat Pattern Matcher V7.5.0 Bias Engine</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+<title>Baccarat Pattern Matcher V7.5.1 60 Input Zoom Fix</title>
 <link rel="manifest" href="./manifest.json" />
 <meta name="theme-color" content="#0a0a0a" />
 <style>
@@ -77,15 +77,31 @@
 .biasBad{color:#f87171}
 @media(max-width:900px){.biasGrid{grid-template-columns:1fr 1fr 1fr}.biasItem .value{font-size:20px}}
 
+
+html,body{max-width:100%;overflow-x:hidden;touch-action:manipulation;-webkit-text-size-adjust:100%}
+*{box-sizing:border-box}
+button,input,select,textarea{font-size:16px!important;touch-action:manipulation}
+.card,.panel,.box{max-width:100%;overflow-wrap:anywhere}
+.slots,.patternSlots{max-width:100%;overflow:hidden}
+.slot{min-width:0;aspect-ratio:1/1;display:flex;align-items:center;justify-content:center;line-height:1;font-size:14px!important}
+.controls{max-width:100%;overflow-x:hidden}
+@media(max-width:900px){
+  .slots{grid-template-columns:repeat(10,1fr)!important;gap:5px!important}
+  .patternSlots{grid-template-columns:repeat(5,1fr)!important}
+  .slot{height:auto!important;min-height:34px!important;font-size:12px!important;padding:2px!important}
+  .app{width:100%;max-width:100%;overflow-x:hidden}
+  .grid2,.grid3,.grid4{max-width:100%;overflow-x:hidden}
+}
+
 </style>
 </head>
 <body>
-<div style="position:fixed;right:8px;bottom:8px;z-index:9999;background:#14532d;color:#bbf7d0;border:1px solid #16a34a;border-radius:999px;padding:6px 10px;font-size:11px;font-weight:900">V7.5.0 / 편향도 추천엔진</div>
+<div style="position:fixed;right:8px;bottom:8px;z-index:9999;background:#14532d;color:#bbf7d0;border:1px solid #16a34a;border-radius:999px;padding:6px 10px;font-size:11px;font-weight:900">V7.5.1 / 60칸+확대방지</div>
 <div class="app"><div class="container">
 <div class="header">
   <div>
-    <div class="controls"><h1>Baccarat Pattern Matcher V7.5.0</h1><span class="v3badge">40 INPUT / RECENT 6 EXACT</span></div>
-    <div class="subtitle">과거 DB와 현재 10~40개 흐름을 비교해 다음 후보를 추출합니다.</div>
+    <div class="controls"><h1>Baccarat Pattern Matcher V7.5.1</h1><span class="v3badge">40 INPUT / RECENT 6 EXACT</span></div>
+    <div class="subtitle">과거 DB와 현재 10~60개 흐름을 비교해 다음 후보를 추출합니다.</div>
   </div>
   <div class="controls">
     <button onclick="saveAll()">저장</button>
@@ -96,7 +112,7 @@
 <p id="savedAt" class="muted"></p>
 
 <div class="grid2">
-<div class="card"><h2>실전 최근 40개 입력</h2><div class="controls" style="margin-bottom:12px"><button class="btnB" onclick="addLive('B')">Banker</button><button class="btnP" onclick="addLive('P')">Player</button><button class="btnT" onclick="addLive('T')">Tie</button><button class="sec" onclick="undoLive()">되돌리기</button><button class="dangerBtn" onclick="resetLive()">초기화</button></div><button class="ok" onclick="saveLiveToDB()">실전입력 DB 저장</button><div id="liveSlots" class="slots"></div><h3>추천 성과 요약</h3><div id="streakSummary"></div></div>
+<div class="card"><h2>실전 최근 60개 입력</h2><div class="controls" style="margin-bottom:12px"><button class="btnB" onclick="addLive('B')">Banker</button><button class="btnP" onclick="addLive('P')">Player</button><button class="btnT" onclick="addLive('T')">Tie</button><button class="sec" onclick="undoLive()">되돌리기</button><button class="dangerBtn" onclick="resetLive()">초기화</button></div><button class="ok" onclick="saveLiveToDB()">실전입력 DB 저장</button><div id="liveSlots" class="slots"></div><h3>추천 성과 요약</h3><div id="streakSummary"></div></div>
 <div class="card"><h2>추천 결과</h2><div id="recommendPanel"></div></div>
 <div class="card"><h2>진입 판단</h2><div id="entryPanel"></div></div>
 <div class="card"><h2>결과 집계</h2><div id="votePanel"></div></div>
@@ -126,7 +142,7 @@
 <div class="controls" style="margin-top:10px"><button onclick="savePatternFromGrid()">20개 패턴 저장</button><button class="sec" onclick="addSamplePatterns()">샘플 30개 추가</button><button class="dangerBtn" onclick="clearPatterns()">DB 초기화</button></div>
 <details style="margin-top:12px"><summary class="muted">텍스트로 직접 입력하기</summary><textarea id="patternInput" placeholder="예: B P B B P P B T B P P B B B P P B P B B" style="margin-top:10px"></textarea><button onclick="savePattern()" style="margin-top:8px">텍스트 패턴 저장</button></details>
 <p class="muted">20개 결과 입력: 앞 15개는 비교, 16번째 결과는 추천 후보, 17~20번째는 참고 흐름입니다.</p></div>
-<div class="card"><h2>DB 상태</h2><div class="grid3"><div class="stat"><div class="label">저장 패턴</div><div id="dbCount" class="value">0</div></div><div class="stat"><div class="label">분석 가능</div><div id="readyState" class="value">아니오</div></div><div class="stat"><div class="label">현재 입력</div><div id="liveCount" class="value">0/40</div></div></div></div>
+<div class="card"><h2>DB 상태</h2><div class="grid3"><div class="stat"><div class="label">저장 패턴</div><div id="dbCount" class="value">0</div></div><div class="stat"><div class="label">분석 가능</div><div id="readyState" class="value">아니오</div></div><div class="stat"><div class="label">현재 입력</div><div id="liveCount" class="value">0/60</div></div></div></div>
 </div>
 
 <div class="card">
@@ -184,7 +200,7 @@ function recordRecommendationResult(actual){
   });
 }
 
-function addLive(v){if(live.length<40){haptic();recordRecommendationResult(v);live.push(v);saveAll();render()}}function undoLive(){if(live.length){live.pop();if(recLogs.length)recLogs.pop();saveAll();render()}}function resetLive(){live=[];render()}
+function addLive(v){if(live.length<60){haptic();recordRecommendationResult(v);live.push(v);saveAll();render()}}function undoLive(){if(live.length){live.pop();if(recLogs.length)recLogs.pop();saveAll();render()}}function resetLive(){live=[];render()}
 
 function clearDetected(){
   detectedPattern=[];
@@ -300,7 +316,7 @@ function detectBPFromCanvas(canvas){
   return final.map(b=>b.type);
 }
 
-function addPatternToken(v){haptic();if(patternInput.length<20){patternInput.push(v);renderPatternSlots()}}function undoPatternToken(){patternInput.pop();renderPatternSlots()}function resetPatternInput(){patternInput=[];renderPatternSlots()}function renderPatternSlots(){document.getElementById("patternSlots").innerHTML=Array.from({length:40},(_,i)=>`<div class="slot ${patternInput[i]||""}">${patternInput[i]||i+1}</div>`).join("")}
+function addPatternToken(v){haptic();if(patternInput.length<20){patternInput.push(v);renderPatternSlots()}}function undoPatternToken(){patternInput.pop();renderPatternSlots()}function resetPatternInput(){patternInput=[];renderPatternSlots()}function renderPatternSlots(){document.getElementById("patternSlots").innerHTML=Array.from({length:60},(_,i)=>`<div class="slot ${patternInput[i]||""}">${patternInput[i]||i+1}</div>`).join("")}
 function savePatternFromGrid(){if(patternInput.length!==20){alert("20칸을 모두 입력해야 저장됩니다. 현재 "+patternInput.length+"개 입력됨.");return}patterns.push([...patternInput]);patternInput=[];dedupePatterns(false);render()}
 function savePattern(){const a=parse(document.getElementById("patternInput").value);if(a.length!==20){alert("20개 결과를 정확히 입력해야 합니다.");return}patterns.push(a);document.getElementById("patternInput").value="";dedupePatterns(false);render()}
 function clearPatterns(){if(confirm("DB를 모두 삭제할까요?")){patterns=[];render()}}
@@ -308,7 +324,7 @@ function addSamplePatterns(){["B P B B P P B T B P P B B B P B P B B P","B P B P
 function patternKey(p){return Array.isArray(p)?p.join(""):""}function normalizePatternArray(arr){if(!Array.isArray(arr))return[];return arr.map(x=>Array.isArray(x)?x.map(norm).filter(Boolean):parse(String(x))).filter(p=>p.length>=20)}
 function mergePatterns(a,b){const map=new Map();a.forEach(p=>{if(Array.isArray(p)&&p.length>=20)map.set(patternKey(p),p)});b.forEach(p=>{if(Array.isArray(p)&&p.length>=20)map.set(patternKey(p),p)});return[...map.values()]}
 function dedupePatterns(show=true){const before=patterns.length;patterns=mergePatterns([],patterns);const after=patterns.length;document.getElementById("beforeDedup").textContent=before+"개";document.getElementById("afterDedup").textContent=after+"개";if(show){saveAll();render();alert("중복 제거 완료: "+before+"개 → "+after+"개")}}
-function importData(event){const file=event.target.files&&event.target.files[0];if(!file)return;const reader=new FileReader();reader.onload=function(){try{const data=JSON.parse(reader.result);const imported=normalizePatternArray(data.patterns||data.db||[]);if(imported.length===0){alert("불러올 수 있는 20개 이상 패턴이 없습니다.");return}const merge=confirm("확인 = 기존 DB에 병합\\n취소 = 기존 DB 덮어쓰기");const before=patterns.length;patterns=merge?mergePatterns(patterns,imported):mergePatterns([],imported);if(Array.isArray(data.live))live=data.live.map(norm).filter(Boolean).slice(0,40);if(Array.isArray(data.betLogs))betLogs=data.betLogs.filter(x=>x&&typeof x==="object");if(Array.isArray(data.patternInput))patternInput=data.patternInput.map(norm).filter(Boolean).slice(0,20);document.getElementById("beforeDedup").textContent=before+"개";document.getElementById("afterDedup").textContent=patterns.length+"개";document.getElementById("lastImport").textContent=new Date().toLocaleString();saveAll();render();alert("DB 불러오기 완료: 파일 패턴 "+imported.length+"개 / 현재 DB "+patterns.length+"개")}catch(e){alert("JSON 파일을 읽을 수 없습니다.")}finally{event.target.value=""}};reader.readAsText(file)}
+function importData(event){const file=event.target.files&&event.target.files[0];if(!file)return;const reader=new FileReader();reader.onload=function(){try{const data=JSON.parse(reader.result);const imported=normalizePatternArray(data.patterns||data.db||[]);if(imported.length===0){alert("불러올 수 있는 20개 이상 패턴이 없습니다.");return}const merge=confirm("확인 = 기존 DB에 병합\\n취소 = 기존 DB 덮어쓰기");const before=patterns.length;patterns=merge?mergePatterns(patterns,imported):mergePatterns([],imported);if(Array.isArray(data.live))live=data.live.map(norm).filter(Boolean).slice(0,60);if(Array.isArray(data.betLogs))betLogs=data.betLogs.filter(x=>x&&typeof x==="object");if(Array.isArray(data.patternInput))patternInput=data.patternInput.map(norm).filter(Boolean).slice(0,20);document.getElementById("beforeDedup").textContent=before+"개";document.getElementById("afterDedup").textContent=patterns.length+"개";document.getElementById("lastImport").textContent=new Date().toLocaleString();saveAll();render();alert("DB 불러오기 완료: 파일 패턴 "+imported.length+"개 / 현재 DB "+patterns.length+"개")}catch(e){alert("JSON 파일을 읽을 수 없습니다.")}finally{event.target.value=""}};reader.readAsText(file)}
 function clearAllData(){if(confirm("패턴 DB, 실전 입력, 베팅 로그를 모두 삭제할까요?")){live=[];patterns=[];betLogs=[];recLogs=[];patternInput=[];localStorage.removeItem(STORAGE_KEY);render();alert("전체 데이터 삭제 완료")}}
 function sim(l,p,len){
   // V6.1: 20칸 전체 가중치 보정.
@@ -565,7 +581,7 @@ function renderBucketStats(currentRate){
   </div>`;
 }
 
-function render(){document.getElementById("beforeDedup").textContent=patterns.length+"개";document.getElementById("afterDedup").textContent=mergePatterns([],patterns).length+"개";renderPatternSlots();document.getElementById("liveSlots").innerHTML=Array.from({length:40},(_,i)=>`<div class="slot ${live[i]||""}">${live[i]||i+1}</div>`).join("");renderStreakSummary();document.getElementById("dbCount").textContent=patterns.length+"개";document.getElementById("readyState").textContent=patterns.length&&live.length>=10?"예":"아니오";document.getElementById("liveCount").textContent=live.length+"/40";const a=analyze(),mc=a.matches.length,minM=Number(document.getElementById("minMatches").value)||10,vs=a.votes,sum=vs.B+vs.P+vs.T,rates={B:sum?vs.B/sum*100:0,P:sum?vs.P/sum*100:0,T:sum?vs.T/sum*100:0},rr=a.recommendation?rates[a.recommendation]:0,cf=confidence(mc,rr);if(live.length<10)document.getElementById("recommendPanel").innerHTML=`<div class="box warn yellow">최근 10개 이상 입력하면 분석이 가능합니다. 현재 ${live.length}개 입력됨.</div>`;else if(!a.recommendation)document.getElementById("recommendPanel").innerHTML=`<div class="box danger red">최근 6개 완전일치 + 전체 유사도 + 다음결과 70% 편향 조건을 통과하지 못했습니다. 관망.</div>`;else{const cls=a.recommendation==="B"?"red":a.recommendation==="P"?"blue":"green";const depth=inputDepthInfo();document.getElementById("recommendPanel").innerHTML=`<div class="panel"><div class="muted">다음 후보</div><div class="big ${cls}">${label(a.recommendation)}</div><div>매칭 기반 ${pct(rr)}</div><div class="bar"><div class="fill" style="width:${Math.min(100,rr)}%"></div></div></div><div class="box ${depth.cls}"><b>입력 깊이: ${depth.label}</b><br><span class="muted">${depth.text} / 현재 ${live.length}개 비교</span></div><div class="box ${cf.cls}"><b>매칭 신뢰도: ${cf.label}</b><br><span class="muted">${cf.text} / 매칭 ${mc}개</span></div><div class="exact-note"><b>V7 기준</b><br><span class="exact-ok">최근 6개 완전일치</span> + 전체 유사도 통과 패턴만 사용합니다. 흐름분석은 제외했습니다.</div><div class="biasBox">
+function render(){document.getElementById("beforeDedup").textContent=patterns.length+"개";document.getElementById("afterDedup").textContent=mergePatterns([],patterns).length+"개";renderPatternSlots();document.getElementById("liveSlots").innerHTML=Array.from({length:60},(_,i)=>`<div class="slot ${live[i]||""}">${live[i]||i+1}</div>`).join("");renderStreakSummary();document.getElementById("dbCount").textContent=patterns.length+"개";document.getElementById("readyState").textContent=patterns.length&&live.length>=10?"예":"아니오";document.getElementById("liveCount").textContent=live.length+"/60";const a=analyze(),mc=a.matches.length,minM=Number(document.getElementById("minMatches").value)||10,vs=a.votes,sum=vs.B+vs.P+vs.T,rates={B:sum?vs.B/sum*100:0,P:sum?vs.P/sum*100:0,T:sum?vs.T/sum*100:0},rr=a.recommendation?rates[a.recommendation]:0,cf=confidence(mc,rr);if(live.length<10)document.getElementById("recommendPanel").innerHTML=`<div class="box warn yellow">최근 10개 이상 입력하면 분석이 가능합니다. 현재 ${live.length}개 입력됨.</div>`;else if(!a.recommendation)document.getElementById("recommendPanel").innerHTML=`<div class="box danger red">최근 6개 완전일치 + 전체 유사도 + 다음결과 70% 편향 조건을 통과하지 못했습니다. 관망.</div>`;else{const cls=a.recommendation==="B"?"red":a.recommendation==="P"?"blue":"green";const depth=inputDepthInfo();document.getElementById("recommendPanel").innerHTML=`<div class="panel"><div class="muted">다음 후보</div><div class="big ${cls}">${label(a.recommendation)}</div><div>매칭 기반 ${pct(rr)}</div><div class="bar"><div class="fill" style="width:${Math.min(100,rr)}%"></div></div></div><div class="box ${depth.cls}"><b>입력 깊이: ${depth.label}</b><br><span class="muted">${depth.text} / 현재 ${live.length}개 비교</span></div><div class="box ${cf.cls}"><b>매칭 신뢰도: ${cf.label}</b><br><span class="muted">${cf.text} / 매칭 ${mc}개</span></div><div class="exact-note"><b>V7 기준</b><br><span class="exact-ok">최근 6개 완전일치</span> + 전체 유사도 통과 패턴만 사용합니다. 흐름분석은 제외했습니다.</div><div class="biasBox">
   <b>편향도 기반 추천 엔진</b>
   <div class="biasGrid">
     <div class="biasItem"><div class="label">Banker 비율</div><div class="value red">${a.bias?pct(a.bias.bRate):"0.0%"}</div></div>
