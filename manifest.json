@@ -1,7 +1,7 @@
 {
-  "name": "Baccarat Pattern Matcher V7.4.9",
-  "short_name": "Baccarat V7.4.9",
-  "description": "Streak reset and match bucket performance",
+  "name": "Baccarat Pattern Matcher V7.5.0",
+  "short_name": "Baccarat V7.5.0",
+  "description": "Bias-based recommendation engine",
   "theme_color": "#0a0a0a",
   "background_color": "#0a0a0a",
   "display": "standalone",
