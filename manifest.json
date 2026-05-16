@@ -1,7 +1,7 @@
 {
-  "name": "Baccarat Pattern Matcher V7.5.2",
-  "short_name": "Baccarat V7.5.2",
-  "description": "60 input mobile layout width fix",
+  "name": "Baccarat Pattern Matcher V7.5.3",
+  "short_name": "Baccarat V7.5.3",
+  "description": "Recommend only when match rate is 60-89 percent",
   "theme_color": "#0a0a0a",
   "background_color": "#0a0a0a",
   "display": "standalone",
