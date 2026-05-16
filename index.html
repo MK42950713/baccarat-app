@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-<title>Baccarat Pattern Matcher V7.5.3 Rate 60-89</title>
+<title>Baccarat Pattern Matcher V7.5.4 Bonus Engine</title>
 <link rel="manifest" href="./manifest.json" />
 <meta name="theme-color" content="#0a0a0a" />
 <style>
@@ -94,7 +94,7 @@ button,input,select,textarea{font-size:16px!important;touch-action:manipulation}
 }
 
 
-/* V7.5.3 mobile layout hard fix */
+/* V7.5.4 mobile layout hard fix */
 html,body{
   width:100%;
   max-width:100%;
@@ -189,14 +189,22 @@ td,th{
   .slots{grid-template-columns:repeat(6,minmax(0,1fr))!important;gap:6px!important}
 }
 
+
+.bonusBox{margin-top:12px;border:1px solid #262626;border-radius:16px;background:#0a0a0a;padding:12px}
+.bonusGrid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:8px}
+.bonusItem{background:#111;border:1px solid #262626;border-radius:12px;padding:10px;text-align:center}
+.bonusItem .label{font-size:12px;color:#a3a3a3}
+.bonusItem .value{font-size:22px;font-weight:1000;margin-top:4px}
+@media(max-width:900px){.bonusGrid{grid-template-columns:1fr 1fr 1fr}.bonusItem .value{font-size:20px}}
+
 </style>
 </head>
 <body>
-<div style="position:fixed;right:8px;bottom:8px;z-index:9999;background:#14532d;color:#bbf7d0;border:1px solid #16a34a;border-radius:999px;padding:6px 10px;font-size:11px;font-weight:900">V7.5.3 / 60~89%추천</div>
+<div style="position:fixed;right:8px;bottom:8px;z-index:9999;background:#14532d;color:#bbf7d0;border:1px solid #16a34a;border-radius:999px;padding:6px 10px;font-size:11px;font-weight:900">V7.5.4 / 60칸+화면폭수정</div>
 <div class="app"><div class="container">
 <div class="header">
   <div>
-    <div class="controls"><h1>Baccarat Pattern Matcher V7.5.3</h1><span class="v3badge">40 INPUT / RECENT 6 EXACT</span></div>
+    <div class="controls"><h1>Baccarat Pattern Matcher V7.5.4</h1><span class="v3badge">40 INPUT / RECENT 6 EXACT</span></div>
     <div class="subtitle">과거 DB와 현재 10~60개 흐름을 비교해 다음 후보를 추출합니다.</div>
   </div>
   <div class="controls">
@@ -276,7 +284,7 @@ function getCurrentRecommendationForLog(){
   try{
     const a = analyze();
     if(!a || !a.recommendation) return null;
-    const matchRate = a.bias && a.bias.rate ? a.bias.rate : 0;
+    const matchRate = a.bonusInfo && a.bonusInfo.rate ? a.bonusInfo.rate : 0;
     return {recommendation:a.recommendation, matchRate};
   }catch(e){
     return null;
@@ -459,14 +467,13 @@ function recentExactCount(liveSeq, pattern, maxLen=8){
   return count;
 }
 function biasStrengthLabel(rate){
-  if(rate>=90)return {label:"관망", cls:"biasBad"};
   if(rate>=80)return {label:"강추천", cls:"biasStrong"};
-  if(rate>=60)return {label:"추천", cls:"biasWeak"};
+  if(rate>=70)return {label:"추천", cls:"biasWeak"};
   return {label:"관망", cls:"biasBad"};
 }
 
 function analyze(){
-  if(live.length<10)return{matches:[],votes:{B:0,P:0,T:0},recommendation:null,bias:null};
+  if(live.length<10)return{matches:[],votes:{B:0,P:0,T:0},recommendation:null,bonusInfo:null};
 
   const min=Number(document.getElementById("minSimilarity").value)||70;
   const ex=document.getElementById("excludeTie").value==="yes";
@@ -481,8 +488,8 @@ function analyze(){
     const exactCount=recentExactCount(liveSlice,p,8);
 
     let bonus=0;
-    if(exactCount>=7) bonus+=5;
-    if(exactCount>=8) bonus+=10;
+    if(exactCount>=8) bonus=10;
+    else if(exactCount>=7) bonus=5;
 
     const adjustedSimilarity=Math.min(100,s.similarity+bonus);
 
@@ -502,45 +509,39 @@ function analyze(){
   }).filter(m=>m && m.next && m.exact6 && m.similarity>=min).sort((a,b)=>b.similarity-a.similarity);
 
   const votes={B:0,P:0,T:0};
-  matches.forEach(m=>votes[m.next]+=m.similarity/100);
+  const bonusVotes={B:0,P:0,T:0};
+  const exactCounts={B:{c7:0,c8:0},P:{c7:0,c8:0},T:{c7:0,c8:0}};
+  const recMatchCounts={B:0,P:0,T:0};
+
+  matches.forEach(m=>{
+    votes[m.next]+=m.similarity/100;
+    bonusVotes[m.next]+=m.bonus||0;
+    recMatchCounts[m.next]++;
+    if(m.exactCount>=7) exactCounts[m.next].c7++;
+    if(m.exactCount>=8) exactCounts[m.next].c8++;
+  });
 
   const use={...votes};
   if(ex)use.T=0;
-
-  const bpTotal=(use.B||0)+(use.P||0);
-  const bRate=bpTotal?use.B/bpTotal*100:0;
-  const pRate=bpTotal?use.P/bpTotal*100:0;
+  const sum=use.B+use.P+use.T;
 
   let rec=null;
-  let biasSide=null;
-  let biasRate=0;
+  if(sum>0)rec=Object.entries(use).sort((a,b)=>b[1]-a[1])[0][0];
 
-  if(bpTotal>0){
-    if(bRate>=pRate){biasSide="B";biasRate=bRate}
-    else{biasSide="P";biasRate=pRate}
-  }
-
-  if(biasRate>=60 && biasRate<90){
-    rec=biasSide;
-  }
-
-  const strongMatches=matches.filter(m=>m.exactCount>=8).length;
-  const sevenMatches=matches.filter(m=>m.exactCount>=7).length;
+  const recRate=rec && sum ? use[rec]/sum*100 : 0;
+  const recBonus=rec ? Math.round((bonusVotes[rec]||0) / Math.max(1, recMatchCounts[rec]||0)) : 0;
+  const recExact7=rec ? exactCounts[rec].c7 : 0;
+  const recExact8=rec ? exactCounts[rec].c8 : 0;
 
   return{
     matches,
     votes,
     recommendation:rec,
-    bias:{
-      side:biasSide,
-      rate:biasRate,
-      bRate,
-      pRate,
-      bpTotal,
-      totalVotes:(use.B||0)+(use.P||0)+(use.T||0),
-      strongMatches,
-      sevenMatches,
-      status:biasStrengthLabel(biasRate)
+    bonusInfo:{
+      rate:recRate,
+      bonus:recBonus,
+      exact7:recExact7,
+      exact8:recExact8
     }
   }
 }
@@ -678,15 +679,23 @@ function renderBucketStats(currentRate){
   </div>`;
 }
 
-function render(){document.getElementById("beforeDedup").textContent=patterns.length+"개";document.getElementById("afterDedup").textContent=mergePatterns([],patterns).length+"개";renderPatternSlots();document.getElementById("liveSlots").innerHTML=Array.from({length:60},(_,i)=>`<div class="slot ${live[i]||""}">${live[i]||i+1}</div>`).join("");renderStreakSummary();document.getElementById("dbCount").textContent=patterns.length+"개";document.getElementById("readyState").textContent=patterns.length&&live.length>=10?"예":"아니오";document.getElementById("liveCount").textContent=live.length+"/60";const a=analyze(),mc=a.matches.length,minM=Number(document.getElementById("minMatches").value)||10,vs=a.votes,sum=vs.B+vs.P+vs.T,rates={B:sum?vs.B/sum*100:0,P:sum?vs.P/sum*100:0,T:sum?vs.T/sum*100:0},rr=a.recommendation?rates[a.recommendation]:0,cf=confidence(mc,rr);if(live.length<10)document.getElementById("recommendPanel").innerHTML=`<div class="box warn yellow">최근 10개 이상 입력하면 분석이 가능합니다. 현재 ${live.length}개 입력됨.</div>`;else if(!a.recommendation)document.getElementById("recommendPanel").innerHTML=`<div class="box danger red">최근 6개 완전일치 + 전체 유사도 + 다음결과 60~89% 편향 조건을 통과하지 못했습니다. 관망.</div>`;else{const cls=a.recommendation==="B"?"red":a.recommendation==="P"?"blue":"green";const depth=inputDepthInfo();document.getElementById("recommendPanel").innerHTML=`<div class="panel"><div class="muted">다음 후보</div><div class="big ${cls}">${label(a.recommendation)}</div><div>매칭 기반 ${pct(rr)}</div><div class="bar"><div class="fill" style="width:${Math.min(100,rr)}%"></div></div></div><div class="box ${depth.cls}"><b>입력 깊이: ${depth.label}</b><br><span class="muted">${depth.text} / 현재 ${live.length}개 비교</span></div><div class="box ${cf.cls}"><b>매칭 신뢰도: ${cf.label}</b><br><span class="muted">${cf.text} / 매칭 ${mc}개</span></div><div class="exact-note"><b>V7 기준</b><br><span class="exact-ok">최근 6개 완전일치</span> + 전체 유사도 통과 패턴만 사용합니다. 흐름분석은 제외했습니다.</div><div class="biasBox">
+function render(){document.getElementById("beforeDedup").textContent=patterns.length+"개";document.getElementById("afterDedup").textContent=mergePatterns([],patterns).length+"개";renderPatternSlots();document.getElementById("liveSlots").innerHTML=Array.from({length:60},(_,i)=>`<div class="slot ${live[i]||""}">${live[i]||i+1}</div>`).join("");renderStreakSummary();document.getElementById("dbCount").textContent=patterns.length+"개";document.getElementById("readyState").textContent=patterns.length&&live.length>=10?"예":"아니오";document.getElementById("liveCount").textContent=live.length+"/60";const a=analyze(),mc=a.matches.length,minM=Number(document.getElementById("minMatches").value)||10,vs=a.votes,sum=vs.B+vs.P+vs.T,rates={B:sum?vs.B/sum*100:0,P:sum?vs.P/sum*100:0,T:sum?vs.T/sum*100:0},rr=a.recommendation?rates[a.recommendation]:0,cf=confidence(mc,rr);if(live.length<10)document.getElementById("recommendPanel").innerHTML=`<div class="box warn yellow">최근 10개 이상 입력하면 분석이 가능합니다. 현재 ${live.length}개 입력됨.</div>`;else if(!a.recommendation)document.getElementById("recommendPanel").innerHTML=`<div class="box danger red">최근 6개 완전일치 + 전체 유사도 + 다음결과 70% 편향 조건을 통과하지 못했습니다. 관망.</div>`;else{const cls=a.recommendation==="B"?"red":a.recommendation==="P"?"blue":"green";const depth=inputDepthInfo();document.getElementById("recommendPanel").innerHTML=`<div class="panel"><div class="muted">다음 후보</div><div class="big ${cls}">${label(a.recommendation)}</div><div>매칭 기반 ${pct(rr)} ${a.bonusInfo?`(가산점 +${a.bonusInfo.bonus})`:"(가산점 +0)"}</div><div class="bar"><div class="fill" style="width:${Math.min(100,rr)}%"></div></div></div><div class="box ${depth.cls}"><b>입력 깊이: ${depth.label}</b><br><span class="muted">${depth.text} / 현재 ${live.length}개 비교</span></div><div class="box ${cf.cls}"><b>매칭 신뢰도: ${cf.label}</b><br><span class="muted">${cf.text} / 매칭 ${mc}개</span></div><div class="exact-note"><b>V7 기준</b><br><span class="exact-ok">최근 6개 완전일치</span> + 전체 유사도 통과 패턴만 사용합니다. 흐름분석은 제외했습니다.</div><div class="bonusBox">
+  <b>가산점 추천 엔진</b>
+  <div class="bonusGrid">
+    <div class="bonusItem"><div class="label">최근 7개 일치</div><div class="value biasWeak">${a.bonusInfo?a.bonusInfo.exact7:0}개</div></div>
+    <div class="bonusItem"><div class="label">최근 8개 일치</div><div class="value biasStrong">${a.bonusInfo?a.bonusInfo.exact8:0}개</div></div>
+    <div class="bonusItem"><div class="label">가산점</div><div class="value neutralColor">+${a.bonusInfo?a.bonusInfo.bonus:0}</div></div>
+  </div>
+  <p class="muted" style="margin-bottom:0">최근 6개 완전일치 필수 · 7개 일치 +5 · 8개 일치 +10</p>
+</div><div class="biasBox">
   <b>편향도 기반 추천 엔진</b>
   <div class="biasGrid">
     <div class="biasItem"><div class="label">Banker 비율</div><div class="value red">${a.bias?pct(a.bias.bRate):"0.0%"}</div></div>
     <div class="biasItem"><div class="label">Player 비율</div><div class="value blue">${a.bias?pct(a.bias.pRate):"0.0%"}</div></div>
     <div class="biasItem"><div class="label">판단</div><div class="value ${a.bias?a.bias.status.cls:"biasBad"}">${a.bias?a.bias.status.label:"관망"}</div></div>
   </div>
-  <p class="muted" style="margin-bottom:0">60~89%만 추천 · 90% 이상 관망 · 7개 일치 ${a.bias?a.bias.sevenMatches:0}개 / 8개 일치 ${a.bias?a.bias.strongMatches:0}개</p>
-</div>${renderBucketStats(rr)}`}let ec="danger",et="진입 금지",em="매칭 조건이 부족합니다.";let requiredRate=65;if(live.length<=11)requiredRate=75;else if(live.length<=13)requiredRate=70;if(a.recommendation&&mc>=minM&&rr>=requiredRate&&live.length>=12){ec="ok";et=(a.bias&&a.bias.rate>=80)?"강추천":"진입 가능";em="매칭 기반 60~89% 추천 구간을 통과했습니다. 단, 자금관리 기준을 먼저 확인하세요."}else if(a.recommendation&&mc>=5&&rr>=58){ec="warn";et="주의";em=live.length<=11?"10~11개 입력은 참고용입니다. 실제 진입은 보수적으로 보세요.":"60~89% 편향 조건은 통과했지만 강한 신호는 아닙니다. 베팅 축소 또는 관망."}document.getElementById("entryPanel").innerHTML=`<div class="box ${ec}"><h3>${et}</h3><p>${em}</p><p class="muted">매칭 ${mc}개 / 추천비율 ${pct(rr)}</p></div>`;document.getElementById("votePanel").innerHTML=`<div class="grid3"><div class="stat"><div class="label">Banker</div><div class="value red">${pct(rates.B)}</div></div><div class="stat"><div class="label">Player</div><div class="value blue">${pct(rates.P)}</div></div><div class="stat"><div class="label">Tie</div><div class="value green">${pct(rates.T)}</div></div></div>`;document.getElementById("matchTable").innerHTML=a.matches.slice(0,30).map((m,i)=>`<tr><td>${i+1}</td><td><b>${pct(m.similarity)}</b><br><span class="muted">${m.raw}/${m.compareLen||live.length} 일치 · 최근6 완전일치 · DB ${m.patternLen||20}개</span></td><td>${chip(m.next)} ${label(m.next)}</td><td class="pattern">${m.pattern.slice(0,15).join(" ")} → <b>${m.next}</b> ${m.pattern.slice(16).join(" ")}</td></tr>`).join("")||`<tr><td colspan="4" class="muted">매칭 결과 없음</td></tr>`;renderMoney();renderROI()}
+  <p class="muted" style="margin-bottom:0">70% 이상 추천 · 80% 이상 강추천 · 7개 일치 ${a.bias?a.bias.sevenMatches:0}개 / 8개 일치 ${a.bias?a.bias.strongMatches:0}개</p>
+</div>${renderBucketStats(rr)}`}let ec="danger",et="진입 금지",em="매칭 조건이 부족합니다.";let requiredRate=65;if(live.length<=11)requiredRate=75;else if(live.length<=13)requiredRate=70;if(a.recommendation&&mc>=minM&&rr>=requiredRate&&live.length>=12){ec="ok";et=(a.bias&&a.bias.rate>=80)?"강추천":"진입 가능";em="최근 6개 완전일치와 가산점 조건을 반영했습니다. 단, 자금관리 기준을 먼저 확인하세요."}else if(a.recommendation&&mc>=5&&rr>=58){ec="warn";et="주의";em=live.length<=11?"10~11개 입력은 참고용입니다. 실제 진입은 보수적으로 보세요.":"70% 편향 조건은 통과했지만 강한 신호는 아닙니다. 베팅 축소 또는 관망."}document.getElementById("entryPanel").innerHTML=`<div class="box ${ec}"><h3>${et}</h3><p>${em}</p><p class="muted">매칭 ${mc}개 / 추천비율 ${pct(rr)}</p></div>`;document.getElementById("votePanel").innerHTML=`<div class="grid3"><div class="stat"><div class="label">Banker</div><div class="value red">${pct(rates.B)}</div></div><div class="stat"><div class="label">Player</div><div class="value blue">${pct(rates.P)}</div></div><div class="stat"><div class="label">Tie</div><div class="value green">${pct(rates.T)}</div></div></div>`;document.getElementById("matchTable").innerHTML=a.matches.slice(0,30).map((m,i)=>`<tr><td>${i+1}</td><td><b>${pct(m.similarity)}</b><br><span class="muted">${m.raw}/${m.compareLen||live.length} 일치 · 최근6 완전일치 · DB ${m.patternLen||20}개</span></td><td>${chip(m.next)} ${label(m.next)}</td><td class="pattern">${m.pattern.slice(0,15).join(" ")} → <b>${m.next}</b> ${m.pattern.slice(16).join(" ")}</td></tr>`).join("")||`<tr><td colspan="4" class="muted">매칭 결과 없음</td></tr>`;renderMoney();renderROI()}
 function renderMoney(){const st=Number(document.getElementById("startBankroll").value)||0,cur=Number(document.getElementById("currentBankroll").value)||0,tg=Number(document.getElementById("targetProfit").value)||0,sl=Number(document.getElementById("stopLoss").value)||0,ls=Number(document.getElementById("losingStreak").value)||0,unit=Number(document.getElementById("betUnit").value)||0,pr=cur-st,rate=st?pr/st*100:0;let cls="ok",title="진입 가능",msg="즉시 중단 신호는 약합니다.";if(pr>=tg&&tg>0){title="목표 달성 - 종료 권장";msg="수익 반납 위험이 큽니다."}else if(pr<=-sl&&sl>0){cls="danger";title="손절 도달 - 진입 금지";msg="추가 진입 위험."}else if(ls>=5){cls="danger";title="연패 위험 - 진입 금지";msg="감정 베팅 위험."}else if(ls>=3){cls="warn";title="주의 - 베팅 축소";msg="쉬거나 베팅을 줄이세요."}const ur=cur?unit/cur*100:0;document.getElementById("moneyPanel").innerHTML=`<div class="box ${cls}"><h3>${title}</h3><p>${msg}</p></div><div class="grid4"><div class="stat"><div class="label">현재 손익</div><div class="value ${pr>=0?'green':'red'}">${won(pr)}</div></div><div class="stat"><div class="label">수익률</div><div class="value ${pr>=0?'green':'red'}">${pct(rate)}</div></div><div class="stat"><div class="label">1회 베팅 비율</div><div class="value ${ur>3?'red':'green'}">${pct(ur)}</div></div><div class="stat"><div class="label">최근 연패</div><div class="value">${ls}회</div></div></div>`}
 function recordBet(win){const amt=Number(document.getElementById("betAmount").value)||0;if(!amt){alert("베팅금을 입력하세요.");return}betLogs.push({win,amt,time:new Date().toLocaleTimeString()});const cur=Number(document.getElementById("currentBankroll").value)||0;document.getElementById("currentBankroll").value=win?cur+amt:cur-amt;render()}
 function clearBets(){if(confirm("베팅 로그를 삭제할까요?")){betLogs=[];render()}}
