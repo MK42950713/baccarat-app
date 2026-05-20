@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-<title>Baccarat Pattern Matcher V7.5.4 Bonus Engine</title>
+<title>Baccarat Pattern Matcher V7.6.0 Flow Engine</title>
 <link rel="manifest" href="./manifest.json" />
 <meta name="theme-color" content="#0a0a0a" />
 <style>
@@ -94,7 +94,7 @@ button,input,select,textarea{font-size:16px!important;touch-action:manipulation}
 }
 
 
-/* V7.5.4 mobile layout hard fix */
+/* V7.6.0 mobile layout hard fix */
 html,body{
   width:100%;
   max-width:100%;
@@ -197,14 +197,25 @@ td,th{
 .bonusItem .value{font-size:22px;font-weight:1000;margin-top:4px}
 @media(max-width:900px){.bonusGrid{grid-template-columns:1fr 1fr 1fr}.bonusItem .value{font-size:20px}}
 
+
+.flowBox{margin-top:12px;border:1px solid #262626;border-radius:16px;background:#0a0a0a;padding:12px}
+.flowGrid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:8px}
+.flowItem{background:#111;border:1px solid #262626;border-radius:12px;padding:10px;text-align:center}
+.flowItem .label{font-size:12px;color:#a3a3a3}
+.flowItem .value{font-size:22px;font-weight:1000;margin-top:4px}
+.flowReason{margin-top:10px;color:#a3a3a3;font-size:13px;line-height:1.45}
+.flowAgree{color:#4ade80;font-weight:1000}
+.flowDisagree{color:#f87171;font-weight:1000}
+@media(max-width:900px){.flowGrid{grid-template-columns:1fr 1fr 1fr}.flowItem .value{font-size:20px}}
+
 </style>
 </head>
 <body>
-<div style="position:fixed;right:8px;bottom:8px;z-index:9999;background:#14532d;color:#bbf7d0;border:1px solid #16a34a;border-radius:999px;padding:6px 10px;font-size:11px;font-weight:900">V7.5.4 / 60칸+화면폭수정</div>
+<div style="position:fixed;right:8px;bottom:8px;z-index:9999;background:#14532d;color:#bbf7d0;border:1px solid #16a34a;border-radius:999px;padding:6px 10px;font-size:11px;font-weight:900">V7.6.0 / 흐름판독엔진</div>
 <div class="app"><div class="container">
 <div class="header">
   <div>
-    <div class="controls"><h1>Baccarat Pattern Matcher V7.5.4</h1><span class="v3badge">40 INPUT / RECENT 6 EXACT</span></div>
+    <div class="controls"><h1>Baccarat Pattern Matcher V7.6.0</h1><span class="v3badge">40 INPUT / RECENT 6 EXACT</span></div>
     <div class="subtitle">과거 DB와 현재 10~60개 흐름을 비교해 다음 후보를 추출합니다.</div>
   </div>
   <div class="controls">
@@ -222,7 +233,7 @@ td,th{
 <div class="card"><h2>결과 집계</h2><div id="votePanel"></div></div>
 <div class="card"><h2>상위 유사 패턴</h2><div class="scroll"><table><thead><tr><th>순위</th><th>유사도</th><th>16번째</th><th>패턴</th></tr></thead><tbody id="matchTable"></tbody></table></div></div>
 
-<div class="card"><h2>분석 설정</h2><div class="grid3"><div><label class="muted">최소 유사도(%)</label><input id="minSimilarity" type="number" value="70" oninput="render()"></div><div><label class="muted">최소 매칭 수</label><input id="minMatches" type="number" value="10" oninput="render()"></div><div><label class="muted">Tie 제외 추천</label><select id="excludeTie" onchange="render()"><option value="yes">예</option><option value="no">아니오</option></select></div></div><div class="box warn yellow">최근 6개 완전일치 + 전체 유사도 조건을 통과한 DB 패턴만 추천합니다. 8개 기준이라 추천 빈도는 줄지만 신뢰도는 높아집니다. 흐름분석은 제외했습니다.</div></div>
+<div class="card"><h2>분석 설정</h2><div class="grid3"><div><label class="muted">최소 유사도(%)</label><input id="minSimilarity" type="number" value="70" oninput="render()"></div><div><label class="muted">최소 매칭 수</label><input id="minMatches" type="number" value="10" oninput="render()"></div><div><label class="muted">Tie 제외 추천</label><select id="excludeTie" onchange="render()"><option value="yes">예</option><option value="no">아니오</option></select></div></div><div class="box warn yellow">최근 6개 완전일치 + 전체 유사도 조건을 통과한 DB 패턴만 추천합니다. 8개 기준이라 추천 빈도는 줄지만 신뢰도는 높아집니다. 흐름판독 엔진을 함께 사용합니다.</div></div>
 </div>
 
 <div class="grid2">
@@ -679,7 +690,134 @@ function renderBucketStats(currentRate){
   </div>`;
 }
 
-function render(){document.getElementById("beforeDedup").textContent=patterns.length+"개";document.getElementById("afterDedup").textContent=mergePatterns([],patterns).length+"개";renderPatternSlots();document.getElementById("liveSlots").innerHTML=Array.from({length:60},(_,i)=>`<div class="slot ${live[i]||""}">${live[i]||i+1}</div>`).join("");renderStreakSummary();document.getElementById("dbCount").textContent=patterns.length+"개";document.getElementById("readyState").textContent=patterns.length&&live.length>=10?"예":"아니오";document.getElementById("liveCount").textContent=live.length+"/60";const a=analyze(),mc=a.matches.length,minM=Number(document.getElementById("minMatches").value)||10,vs=a.votes,sum=vs.B+vs.P+vs.T,rates={B:sum?vs.B/sum*100:0,P:sum?vs.P/sum*100:0,T:sum?vs.T/sum*100:0},rr=a.recommendation?rates[a.recommendation]:0,cf=confidence(mc,rr);if(live.length<10)document.getElementById("recommendPanel").innerHTML=`<div class="box warn yellow">최근 10개 이상 입력하면 분석이 가능합니다. 현재 ${live.length}개 입력됨.</div>`;else if(!a.recommendation)document.getElementById("recommendPanel").innerHTML=`<div class="box danger red">최근 6개 완전일치 + 전체 유사도 + 다음결과 70% 편향 조건을 통과하지 못했습니다. 관망.</div>`;else{const cls=a.recommendation==="B"?"red":a.recommendation==="P"?"blue":"green";const depth=inputDepthInfo();document.getElementById("recommendPanel").innerHTML=`<div class="panel"><div class="muted">다음 후보</div><div class="big ${cls}">${label(a.recommendation)}</div><div>매칭 기반 ${pct(rr)} ${a.bonusInfo?`(가산점 +${a.bonusInfo.bonus})`:"(가산점 +0)"}</div><div class="bar"><div class="fill" style="width:${Math.min(100,rr)}%"></div></div></div><div class="box ${depth.cls}"><b>입력 깊이: ${depth.label}</b><br><span class="muted">${depth.text} / 현재 ${live.length}개 비교</span></div><div class="box ${cf.cls}"><b>매칭 신뢰도: ${cf.label}</b><br><span class="muted">${cf.text} / 매칭 ${mc}개</span></div><div class="exact-note"><b>V7 기준</b><br><span class="exact-ok">최근 6개 완전일치</span> + 전체 유사도 통과 패턴만 사용합니다. 흐름분석은 제외했습니다.</div><div class="bonusBox">
+
+function runLengthFromEnd(seq){
+  if(!seq.length)return 0;
+  const last=seq[seq.length-1];
+  let n=0;
+  for(let i=seq.length-1;i>=0;i--){
+    if(seq[i]===last)n++;
+    else break;
+  }
+  return n;
+}
+function altLengthFromEnd(seq){
+  if(seq.length<2)return seq.length;
+  let n=1;
+  for(let i=seq.length-1;i>0;i--){
+    if(seq[i]!==seq[i-1])n++;
+    else break;
+  }
+  return n;
+}
+function countBP(seq){
+  return seq.reduce((a,v)=>{if(v==="B")a.B++; if(v==="P")a.P++; return a},{B:0,P:0});
+}
+function analyzeFlowEngine(){
+  const seq=(live||[]).filter(v=>v==="B"||v==="P");
+  if(seq.length<6){
+    return {recommendation:null, label:"분석 부족", strength:"관망", bScore:0, pScore:0, reasons:["B/P 기준 최근 6개 이상 필요"], mixed:false};
+  }
+
+  let bScore=0, pScore=0;
+  const reasons=[];
+  const last=seq[seq.length-1];
+  const prev=seq[seq.length-2];
+  const rLen=runLengthFromEnd(seq);
+  const aLen=altLengthFromEnd(seq);
+  const recent10=seq.slice(-10);
+  const ratio=countBP(recent10);
+  const total=ratio.B+ratio.P;
+  const bRate=total?ratio.B/total*100:0;
+  const pRate=total?ratio.P/total*100:0;
+
+  if(rLen===1 && prev){
+    const opposite=last==="B"?"P":"B";
+    if(opposite==="B")bScore+=2; else pScore+=2;
+    reasons.push(`마지막 ${label(last)} 단발 → 반대 재진입 +2`);
+  }
+
+  if(rLen>=2){
+    if(last==="B")bScore+=3; else pScore+=3;
+    reasons.push(`${label(last)} ${rLen}회 연속 → 유지 +3`);
+  }
+
+  if(aLen>=5){
+    const next=last==="B"?"P":"B";
+    if(next==="B")bScore+=4; else pScore+=4;
+    reasons.push(`교차 ${aLen}회 유지 → 다음 교차 +4`);
+  }
+
+  if(seq.length>=6){
+    const beforeBreak=seq.slice(-6,-1);
+    const beforeAlt=altLengthFromEnd(beforeBreak);
+    if(beforeAlt>=4 && rLen>=2){
+      if(last==="B")bScore+=5; else pScore+=5;
+      reasons.push(`교차 깨짐 후 ${label(last)} 붙음 → 유지/장줄 시작 +5`);
+    }
+  }
+
+  if(rLen>=3){
+    if(last==="B")bScore+=6; else pScore+=6;
+    reasons.push(`${label(last)} 장줄 후보 ${rLen}회 → 유지 +6`);
+  }
+
+  if(total>=8){
+    if(bRate>=70){
+      pScore+=3;
+      reasons.push(`최근10 B ${bRate.toFixed(0)}% 과열 → P 반전 +3`);
+    }else if(pRate>=70){
+      bScore+=3;
+      reasons.push(`최근10 P ${pRate.toFixed(0)}% 과열 → B 반전 +3`);
+    }
+  }
+
+  const recent8=seq.slice(-8);
+  let switches=0;
+  for(let i=1;i<recent8.length;i++) if(recent8[i]!==recent8[i-1]) switches++;
+  const mixed = recent8.length>=8 && switches>=5 && rLen<3;
+  if(mixed){
+    bScore-=3; pScore-=3;
+    reasons.push(`최근8 전환 ${switches}회 → 혼합장 패널티 -3`);
+  }
+
+  let rec=null;
+  if(Math.max(bScore,pScore)>=3 && Math.abs(bScore-pScore)>=2){
+    rec=bScore>pScore?"B":"P";
+  }
+
+  let strength="관망";
+  const gap=Math.abs(bScore-pScore);
+  const top=Math.max(bScore,pScore);
+  if(rec && top>=10 && gap>=5) strength="강추천";
+  else if(rec && top>=6 && gap>=3) strength="중간추천";
+  else if(rec) strength="약추천";
+
+  return {recommendation:rec, label:rec?label(rec):"관망", strength, bScore, pScore, reasons, mixed, bRate, pRate};
+}
+function renderFlowEngine(dbRec){
+  const f=analyzeFlowEngine();
+  const agree = dbRec && f.recommendation && dbRec===f.recommendation;
+  const disagree = dbRec && f.recommendation && dbRec!==f.recommendation;
+  const finalText = agree ? "DB+흐름 일치" : disagree ? "DB+흐름 불일치" : "흐름 단독/관망";
+  const finalCls = agree ? "flowAgree" : disagree ? "flowDisagree" : "muted";
+  return `<div class="flowBox">
+    <b>흐름판독 엔진</b>
+    <div class="flowGrid">
+      <div class="flowItem"><div class="label">흐름 추천</div><div class="value ${f.recommendation==="B"?"red":f.recommendation==="P"?"blue":"neutralColor"}">${f.label}</div></div>
+      <div class="flowItem"><div class="label">강도</div><div class="value neutralColor">${f.strength}</div></div>
+      <div class="flowItem"><div class="label">일치 여부</div><div class="value ${finalCls}">${finalText}</div></div>
+    </div>
+    <div class="flowGrid">
+      <div class="flowItem"><div class="label">Banker 점수</div><div class="value red">${f.bScore}</div></div>
+      <div class="flowItem"><div class="label">Player 점수</div><div class="value blue">${f.pScore}</div></div>
+      <div class="flowItem"><div class="label">최종</div><div class="value ${agree?"flowAgree":disagree?"flowDisagree":"neutralColor"}">${agree?label(dbRec):disagree?"관망":f.label}</div></div>
+    </div>
+    <div class="flowReason">${f.reasons.slice(0,5).map(x=>"· "+x).join("<br>")||"· 분석 근거 부족"}</div>
+  </div>`;
+}
+
+function render(){document.getElementById("beforeDedup").textContent=patterns.length+"개";document.getElementById("afterDedup").textContent=mergePatterns([],patterns).length+"개";renderPatternSlots();document.getElementById("liveSlots").innerHTML=Array.from({length:60},(_,i)=>`<div class="slot ${live[i]||""}">${live[i]||i+1}</div>`).join("");renderStreakSummary();document.getElementById("dbCount").textContent=patterns.length+"개";document.getElementById("readyState").textContent=patterns.length&&live.length>=10?"예":"아니오";document.getElementById("liveCount").textContent=live.length+"/60";const a=analyze(),mc=a.matches.length,minM=Number(document.getElementById("minMatches").value)||10,vs=a.votes,sum=vs.B+vs.P+vs.T,rates={B:sum?vs.B/sum*100:0,P:sum?vs.P/sum*100:0,T:sum?vs.T/sum*100:0},rr=a.recommendation?rates[a.recommendation]:0,cf=confidence(mc,rr);if(live.length<10)document.getElementById("recommendPanel").innerHTML=`<div class="box warn yellow">최근 10개 이상 입력하면 분석이 가능합니다. 현재 ${live.length}개 입력됨.</div>`;else if(!a.recommendation)document.getElementById("recommendPanel").innerHTML=`<div class="box danger red">최근 6개 완전일치 + 전체 유사도 + 다음결과 70% 편향 조건을 통과하지 못했습니다. 관망.</div>`;else{const cls=a.recommendation==="B"?"red":a.recommendation==="P"?"blue":"green";const depth=inputDepthInfo();document.getElementById("recommendPanel").innerHTML=`<div class="panel"><div class="muted">다음 후보</div><div class="big ${cls}">${label(a.recommendation)}</div><div>매칭 기반 ${pct(rr)} ${a.bonusInfo?`(가산점 +${a.bonusInfo.bonus})`:"(가산점 +0)"}</div><div class="bar"><div class="fill" style="width:${Math.min(100,rr)}%"></div></div></div><div class="box ${depth.cls}"><b>입력 깊이: ${depth.label}</b><br><span class="muted">${depth.text} / 현재 ${live.length}개 비교</span></div><div class="box ${cf.cls}"><b>매칭 신뢰도: ${cf.label}</b><br><span class="muted">${cf.text} / 매칭 ${mc}개</span></div><div class="exact-note"><b>V7 기준</b><br><span class="exact-ok">최근 6개 완전일치</span> + 전체 유사도 통과 패턴만 사용합니다. 흐름판독 엔진을 함께 사용합니다.</div><div class="bonusBox">
   <b>가산점 추천 엔진</b>
   <div class="bonusGrid">
     <div class="bonusItem"><div class="label">최근 7개 일치</div><div class="value biasWeak">${a.bonusInfo?a.bonusInfo.exact7:0}개</div></div>
@@ -695,7 +833,7 @@ function render(){document.getElementById("beforeDedup").textContent=patterns.le
     <div class="biasItem"><div class="label">판단</div><div class="value ${a.bias?a.bias.status.cls:"biasBad"}">${a.bias?a.bias.status.label:"관망"}</div></div>
   </div>
   <p class="muted" style="margin-bottom:0">70% 이상 추천 · 80% 이상 강추천 · 7개 일치 ${a.bias?a.bias.sevenMatches:0}개 / 8개 일치 ${a.bias?a.bias.strongMatches:0}개</p>
-</div>${renderBucketStats(rr)}`}let ec="danger",et="진입 금지",em="매칭 조건이 부족합니다.";let requiredRate=65;if(live.length<=11)requiredRate=75;else if(live.length<=13)requiredRate=70;if(a.recommendation&&mc>=minM&&rr>=requiredRate&&live.length>=12){ec="ok";et=(a.bias&&a.bias.rate>=80)?"강추천":"진입 가능";em="최근 6개 완전일치와 가산점 조건을 반영했습니다. 단, 자금관리 기준을 먼저 확인하세요."}else if(a.recommendation&&mc>=5&&rr>=58){ec="warn";et="주의";em=live.length<=11?"10~11개 입력은 참고용입니다. 실제 진입은 보수적으로 보세요.":"70% 편향 조건은 통과했지만 강한 신호는 아닙니다. 베팅 축소 또는 관망."}document.getElementById("entryPanel").innerHTML=`<div class="box ${ec}"><h3>${et}</h3><p>${em}</p><p class="muted">매칭 ${mc}개 / 추천비율 ${pct(rr)}</p></div>`;document.getElementById("votePanel").innerHTML=`<div class="grid3"><div class="stat"><div class="label">Banker</div><div class="value red">${pct(rates.B)}</div></div><div class="stat"><div class="label">Player</div><div class="value blue">${pct(rates.P)}</div></div><div class="stat"><div class="label">Tie</div><div class="value green">${pct(rates.T)}</div></div></div>`;document.getElementById("matchTable").innerHTML=a.matches.slice(0,30).map((m,i)=>`<tr><td>${i+1}</td><td><b>${pct(m.similarity)}</b><br><span class="muted">${m.raw}/${m.compareLen||live.length} 일치 · 최근6 완전일치 · DB ${m.patternLen||20}개</span></td><td>${chip(m.next)} ${label(m.next)}</td><td class="pattern">${m.pattern.slice(0,15).join(" ")} → <b>${m.next}</b> ${m.pattern.slice(16).join(" ")}</td></tr>`).join("")||`<tr><td colspan="4" class="muted">매칭 결과 없음</td></tr>`;renderMoney();renderROI()}
+</div>${renderFlowEngine(a.recommendation)}${renderBucketStats(rr)}`}const flowForEntry=analyzeFlowEngine();const flowDisagreeForEntry=a.recommendation&&flowForEntry.recommendation&&a.recommendation!==flowForEntry.recommendation;let ec="danger",et="진입 금지",em="매칭 조건이 부족합니다.";let requiredRate=65;if(live.length<=11)requiredRate=75;else if(live.length<=13)requiredRate=70;if(a.recommendation&&mc>=minM&&rr>=requiredRate&&live.length>=12){ec="ok";et=(a.bias&&a.bias.rate>=80)?"강추천":"진입 가능";em="최근 6개 완전일치와 가산점 조건을 반영했습니다. 단, 자금관리 기준을 먼저 확인하세요."}else if(a.recommendation&&mc>=5&&rr>=58){ec="warn";et="주의";em=live.length<=11?"10~11개 입력은 참고용입니다. 실제 진입은 보수적으로 보세요.":"70% 편향 조건은 통과했지만 강한 신호는 아닙니다. 베팅 축소 또는 관망."}if(flowDisagreeForEntry){ec="danger";et="관망";em="DB 추천과 흐름판독 추천이 다릅니다. 진입하지 않는 구간입니다."}document.getElementById("entryPanel").innerHTML=`<div class="box ${ec}"><h3>${et}</h3><p>${em}</p><p class="muted">매칭 ${mc}개 / 추천비율 ${pct(rr)}</p></div>`;document.getElementById("votePanel").innerHTML=`<div class="grid3"><div class="stat"><div class="label">Banker</div><div class="value red">${pct(rates.B)}</div></div><div class="stat"><div class="label">Player</div><div class="value blue">${pct(rates.P)}</div></div><div class="stat"><div class="label">Tie</div><div class="value green">${pct(rates.T)}</div></div></div>`;document.getElementById("matchTable").innerHTML=a.matches.slice(0,30).map((m,i)=>`<tr><td>${i+1}</td><td><b>${pct(m.similarity)}</b><br><span class="muted">${m.raw}/${m.compareLen||live.length} 일치 · 최근6 완전일치 · DB ${m.patternLen||20}개</span></td><td>${chip(m.next)} ${label(m.next)}</td><td class="pattern">${m.pattern.slice(0,15).join(" ")} → <b>${m.next}</b> ${m.pattern.slice(16).join(" ")}</td></tr>`).join("")||`<tr><td colspan="4" class="muted">매칭 결과 없음</td></tr>`;renderMoney();renderROI()}
 function renderMoney(){const st=Number(document.getElementById("startBankroll").value)||0,cur=Number(document.getElementById("currentBankroll").value)||0,tg=Number(document.getElementById("targetProfit").value)||0,sl=Number(document.getElementById("stopLoss").value)||0,ls=Number(document.getElementById("losingStreak").value)||0,unit=Number(document.getElementById("betUnit").value)||0,pr=cur-st,rate=st?pr/st*100:0;let cls="ok",title="진입 가능",msg="즉시 중단 신호는 약합니다.";if(pr>=tg&&tg>0){title="목표 달성 - 종료 권장";msg="수익 반납 위험이 큽니다."}else if(pr<=-sl&&sl>0){cls="danger";title="손절 도달 - 진입 금지";msg="추가 진입 위험."}else if(ls>=5){cls="danger";title="연패 위험 - 진입 금지";msg="감정 베팅 위험."}else if(ls>=3){cls="warn";title="주의 - 베팅 축소";msg="쉬거나 베팅을 줄이세요."}const ur=cur?unit/cur*100:0;document.getElementById("moneyPanel").innerHTML=`<div class="box ${cls}"><h3>${title}</h3><p>${msg}</p></div><div class="grid4"><div class="stat"><div class="label">현재 손익</div><div class="value ${pr>=0?'green':'red'}">${won(pr)}</div></div><div class="stat"><div class="label">수익률</div><div class="value ${pr>=0?'green':'red'}">${pct(rate)}</div></div><div class="stat"><div class="label">1회 베팅 비율</div><div class="value ${ur>3?'red':'green'}">${pct(ur)}</div></div><div class="stat"><div class="label">최근 연패</div><div class="value">${ls}회</div></div></div>`}
 function recordBet(win){const amt=Number(document.getElementById("betAmount").value)||0;if(!amt){alert("베팅금을 입력하세요.");return}betLogs.push({win,amt,time:new Date().toLocaleTimeString()});const cur=Number(document.getElementById("currentBankroll").value)||0;document.getElementById("currentBankroll").value=win?cur+amt:cur-amt;render()}
 function clearBets(){if(confirm("베팅 로그를 삭제할까요?")){betLogs=[];render()}}
